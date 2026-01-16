@@ -1,0 +1,40 @@
+﻿using HarmonyLib;
+
+namespace VVVVVV.Patches;
+
+[HarmonyPatch(typeof(HeroController))]
+internal static class GravityFlipControlsPatch {
+
+	[HarmonyPatch(nameof(HeroController.Awake))]
+	[HarmonyPostfix]
+	private static void FixFlippingOnReload() {
+		V6Plugin.GravityIsFlipped = false;
+	}
+
+	[HarmonyPatch(nameof(HeroController.HeroJump), [typeof(bool)])]
+	[HarmonyPostfix]
+	private static void FlipOnJump(HeroController __instance) {
+		V6Plugin.FlipGravity();
+		__instance.CancelHeroJump();
+	}
+
+	[HarmonyPatch(nameof(HeroController.DoDoubleJump))]
+	[HarmonyPostfix]
+	private static void FlipOnDoubleJump(HeroController __instance) {
+		V6Plugin.FlipGravity();
+		__instance.CancelHeroJump();
+	}
+
+	[HarmonyPatch(nameof(HeroController.HazardRespawn))]
+	[HarmonyPrefix]
+	private static void FlipOnHazardRespawn() {
+		if (V6Plugin.GravityIsFlipped) V6Plugin.FlipGravity();
+	}
+
+	[HarmonyPatch(nameof(HeroController.Respawn))]
+	[HarmonyPrefix]
+	private static void FlipOnRespawn() {
+		if (V6Plugin.GravityIsFlipped) V6Plugin.FlipGravity();
+	}
+
+}

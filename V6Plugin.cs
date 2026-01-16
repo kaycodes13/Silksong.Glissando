@@ -1,0 +1,167 @@
+using BepInEx;
+using BepInEx.Logging;
+using HarmonyLib;
+using UnityEngine;
+using Silksong.ModMenu.Plugin;
+using Silksong.ModMenu.Screens;
+using Silksong.ModMenu.Elements;
+using System.Collections;
+using BepInEx.Configuration;
+using System.Collections.Generic;
+
+namespace VVVVVV;
+
+[BepInAutoPlugin(id: "io.github.kaycodes13.vvvvvv")]
+[BepInDependency("org.silksong-modding.fsmutil", "0.3.5")]
+[BepInDependency("org.silksong-modding.modmenu", "0.2.0")]
+public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
+
+	public static bool GravityIsFlipped { get; internal set; } = false;
+
+	internal static ManualLogSource Log { get; private set; } = null!;
+
+	private Harmony Harmony { get; } = new(Id);
+
+	private ConfigEntry<KeyCode> RespawnKey { get; set; } = null!;
+	ChoiceElement<KeyCode>? respawnKeyOption = null;
+	private static float respawnTimer = 0;
+	private static readonly List<KeyCode> bindableKeys = [
+		KeyCode.None,
+		KeyCode.F3,
+		KeyCode.F4,
+		KeyCode.F5,
+		KeyCode.F6,
+		KeyCode.F7,
+		KeyCode.F8,
+		KeyCode.F9,
+		KeyCode.F10,
+		KeyCode.Backspace,
+		KeyCode.Tab,
+		KeyCode.Backslash,
+		KeyCode.Slash,
+		KeyCode.LeftAlt,
+		KeyCode.RightAlt,
+	];
+
+	private void Awake() {
+		Harmony.PatchAll();
+		Log = Logger;
+
+		RespawnKey = Config.Bind("", "RespawnKeybind", KeyCode.None);
+		if (!bindableKeys.Contains(RespawnKey.Value))
+			RespawnKey.Value = KeyCode.None;
+		RespawnKey.SettingChanged += RespawnKeyChanged;
+		StartCoroutine(RespawnCoro());
+
+		Logger.LogInfo($"Plugin {Name} ({Id}) has loaded!");
+	}
+
+	private void OnDestroy() {
+		Harmony.UnpatchSelf();
+		if (GravityIsFlipped)
+			FlipGravity();
+	}
+
+	public string ModMenuName() => Name;
+
+	public AbstractMenuScreen BuildCustomMenu() {
+		TextButton respawnBtn = new("Respawn Hornet") {
+			OnSubmit = QueueRespawnHero
+		};
+		respawnKeyOption = new(
+			"Respawn Key",
+			bindableKeys,
+			"Useful for getting unstuck from weird corners in the roof."
+		) {
+			Value = RespawnKey.Value
+		};
+		respawnKeyOption.OnValueChanged += SetKeybind;
+
+		SimpleMenuScreen screen = new(Name);
+		screen.AddRange([respawnBtn, respawnKeyOption]);
+
+		return screen;
+
+		void SetKeybind(KeyCode key) {
+			RespawnKey.Value = key;
+		}
+	}
+
+	private void RespawnKeyChanged(object sender, System.EventArgs e) {
+		if (respawnKeyOption != null && respawnKeyOption.Value != RespawnKey.Value)
+			respawnKeyOption.Value = RespawnKey.Value;
+	}
+
+	private IEnumerator RespawnCoro() {
+		while(true) {
+			if (
+				enabled
+				&& GameManager.SilentInstance is GameManager gm
+				&& gm.IsGameplayScene()
+				&& !gm.IsGamePaused()
+				&& respawnTimer <= 0
+				&& RespawnKey.Value != KeyCode.None
+				&& Input.GetKeyDown(RespawnKey.Value)
+			) {
+				respawnTimer = 5;
+				QueueRespawnHero();
+			}
+			if (respawnTimer > 0)
+				respawnTimer -= Time.deltaTime;
+			yield return null;
+		}
+	}
+
+	private static void QueueRespawnHero() {
+		if (GameManager.SilentInstance is not GameManager gm || gm.IsNonGameplayScene())
+			return;
+
+		gm.StartCoroutine(RespawnHero());
+
+		IEnumerator RespawnHero() {
+			if (gm.IsGamePaused()) {
+				IEnumerator unpauseIterator = gm.PauseGameToggle(playSound: false);
+				while (unpauseIterator.MoveNext())
+					yield return unpauseIterator.Current;
+			}
+
+			yield return new WaitFrameAndPaused();
+
+			GameManager.instance.HazardRespawn();
+		}
+	}
+
+	internal static void FlipGravity() {
+		var hc = HeroController.instance;
+		if (!hc)
+			return;
+
+		GravityIsFlipped = !GravityIsFlipped;
+
+		hc.MAX_FALL_VELOCITY *= -1;
+		hc.MAX_FALL_VELOCITY_WEIGHTED *= -1;
+		hc.MAX_FALL_VELOCITY_DJUMP *= -1;
+		hc.BOUNCE_VELOCITY *= -1;
+		hc.FLOAT_SPEED *= -1;
+		hc.JUMP_SPEED *= -1;
+
+		hc.DEFAULT_GRAVITY *= -1; // do NOT uncomment this, this breaks drifter's cloak completely
+		hc.AIR_HANG_GRAVITY *= -1;
+		hc.AIR_HANG_ACCEL *= -1; // stops the "holding jump while flipped mega jitter"
+		hc.rb2d.gravityScale *= -1;
+		hc.rb2d.linearVelocity = new(hc.rb2d.linearVelocity.x, 0);
+
+		Vector3 scale = hc.transform.localScale;
+		scale.y *= -1;
+		hc.transform.localScale = scale;
+	}
+
+	internal static void FlipHeroVelocity() {
+		if (!HeroController.instance)
+			return;
+		Vector2 vel = HeroController.instance.rb2d.linearVelocity;
+		vel = vel with { y = -vel.y };
+		HeroController.instance.rb2d.linearVelocity = vel;
+	}
+
+}
