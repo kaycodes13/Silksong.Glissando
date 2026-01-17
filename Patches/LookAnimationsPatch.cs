@@ -5,7 +5,7 @@ using System.Linq;
 namespace VVVVVV.Patches;
 
 [HarmonyPatch(typeof(HeroAnimationController), nameof(HeroAnimationController.GetClip))]
-internal static class FlipLookAnimationsPatch {
+internal static class LookAnimationsPatch {
 
 	private static void Prefix(ref string clipName) {
 		if (!V6Plugin.GravityIsFlipped)

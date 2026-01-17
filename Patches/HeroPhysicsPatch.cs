@@ -8,7 +8,19 @@ using CollisionSide = GlobalEnums.CollisionSide;
 namespace VVVVVV.Patches;
 
 [HarmonyPatch(typeof(HeroController))]
-internal static class FlippedPhysicsPatch {
+internal static class HeroPhysicsPatch {
+
+
+	[HarmonyPatch(nameof(HeroController.FindCollisionDirection))]
+	[HarmonyPostfix]
+	private static void FlippedCollisionDirection(ref CollisionSide __result) {
+		if (V6Plugin.GravityIsFlipped) {
+			if (__result == CollisionSide.top)
+				__result = CollisionSide.bottom;
+			else if (__result == CollisionSide.bottom)
+				__result = CollisionSide.top;
+		}
+	}
 
 
 	[HarmonyPatch(nameof(HeroController.CheckTouchingGround), [typeof(bool)])]
@@ -38,18 +50,6 @@ internal static class FlippedPhysicsPatch {
 			return Helper.IsRayHittingNoTriggers(
 				origin, Vector2.up, 1f, HeroController.GROUND_LAYERS
 			);
-		}
-	}
-
-
-	[HarmonyPatch(nameof(HeroController.FindCollisionDirection))]
-	[HarmonyPostfix]
-	private static void FlippedCollisionDirection(ref CollisionSide __result) {
-		if (V6Plugin.GravityIsFlipped) {
-			if (__result == CollisionSide.top)
-				__result = CollisionSide.bottom;
-			else if (__result == CollisionSide.bottom)
-				__result = CollisionSide.top;
 		}
 	}
 

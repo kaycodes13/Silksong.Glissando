@@ -3,7 +3,7 @@
 namespace VVVVVV.Patches;
 
 [HarmonyPatch(typeof(HeroController))]
-internal static class FlippedDownspikePatch {
+internal static class DownspikePatch {
 
 	// The low priority is because I know Needleforge also patches the downspike methods
 	// and I want at least SOME custom crests to play nice with this mod.

@@ -7,7 +7,7 @@ using static VVVVVV.Utils.ILUtil;
 namespace VVVVVV.Patches;
 
 [HarmonyPatch]
-internal static class HeroClampFallVelocityActionPatch {
+internal static class FallClampActionPatch {
 
 	[HarmonyPatch(typeof(HeroClampFallVelocity), nameof(HeroClampFallVelocity.OnUpdate))]
 	[HarmonyTranspiler]
