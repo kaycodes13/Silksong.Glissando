@@ -4,9 +4,12 @@ using Silksong.FsmUtil;
 using System;
 using System.Linq;
 using UnityEngine;
+using Sv2dComparison = HutongGames.PlayMaker.Actions.SetVelocity2dConditional.ComparisonType;
 
 namespace VVVVVV.Utils;
 internal static class FsmFlipUtil {
+
+	internal const string FLIP_BOOL_NAME = $"{V6Plugin.Id} Is Flipped";
 
 	/// <summary>
 	/// Performs an FSM edit which causes all <paramref name="checkStates"/> to check the gravity status, and if gravity is flipped, flip all hero-targeting y motion in all the actions in the <paramref name="affectedStates"/>.
@@ -14,18 +17,15 @@ internal static class FsmFlipUtil {
 	/// <remarks>
 	/// The edit will ONLY apply to actions which existed at the time this function was called.
 	/// </remarks>
-	/// <param name="fsm"></param>
-	/// <param name="hc"></param>
-	/// <param name="checkStates"></param>
-	/// <param name="affectedStates"></param>
 	internal static void DoGravityFlipEdit(
 		this PlayMakerFSM fsm, HeroController hc,
-		FsmState[] checkStates, FsmState[]? affectedStates = null
+		FsmState[] checkStates, FsmState[]? affectedStates = null,
+		Action? otherEdits = null
 	) {
 		affectedStates ??= fsm.FsmStates;
 		FsmStateAction[] affectedActions = [.. affectedStates.SelectMany(x => x.Actions)];
 
-		FsmBool isFlipped = fsm.GetBoolVariable($"{V6Plugin.Id} Is Flipped");
+		FsmBool isFlipped = fsm.GetBoolVariable(FLIP_BOOL_NAME);
 
 		foreach(var state in checkStates)
 			state.InsertLambdaMethod(0, FlipState);
@@ -36,6 +36,7 @@ internal static class FsmFlipUtil {
 
 			isFlipped.Value = V6Plugin.GravityIsFlipped;
 			affectedActions.FlipHeroMotion(hc);
+			otherEdits?.Invoke();
 			finished();
 		}
 	}
@@ -78,6 +79,10 @@ internal static class FsmFlipUtil {
 					(ac.yMin, ac.yMax) = (ac.yMax, ac.yMin);
 				}
 				return true;
+			case AccelerateToY ac:
+				if (ac.gameObject.GetSafe(ac) == hero)
+					ac.targetSpeed.Value *= -1;
+				return true;
 			case SetGravity2dScale ac:
 				if (ac.gameObject.GetSafe(ac) == hero)
 					ac.rigidbody2d.gravityScale *= -1;
@@ -85,6 +90,26 @@ internal static class FsmFlipUtil {
 			case SetGravity2dScaleV2 ac:
 				if (ac.gameObject.GetSafe(ac) == hero)
 					ac.rigidbody2d.gravityScale *= -1;
+				return true;
+			case SetVelocity2dConditional ac:
+				if (ac.gameObject.GetSafe(ac) == hero) {
+					ac.y.Value *= -1;
+					ac.yCondition.value.Value *= -1;
+					switch (ac.yCondition.comparisonType) {
+						case Sv2dComparison.GreaterThan:
+							ac.yCondition.comparisonType = Sv2dComparison.LessThan;
+							break;
+						case Sv2dComparison.LessThan:
+							ac.yCondition.comparisonType = Sv2dComparison.GreaterThan;
+							break;
+						case Sv2dComparison.GreaterThanOrEqualTo:
+							ac.yCondition.comparisonType = Sv2dComparison.LessThanOrEqualTo;
+							break;
+						case Sv2dComparison.LessThanOrEqualTo:
+							ac.yCondition.comparisonType = Sv2dComparison.GreaterThanOrEqualTo;
+							break;
+					}
+				}
 				return true;
 		}
 		return false;

@@ -2,6 +2,8 @@
 using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
 using Silksong.FsmUtil;
+using System;
+using VVVVVV.Utils;
 
 namespace VVVVVV.Patches;
 
@@ -14,35 +16,44 @@ internal static class DriftersCloakPatch {
 		if (!__result)
 			return;
 
-		UnityEngine.Debug.Log("float control adjustment check");
 		__result = __instance.inputHandler.inputActions.Down.IsPressed == false;
 	}
 
 	[HarmonyPatch(nameof(HeroController.Start))]
 	[HarmonyPostfix]
 	private static void AllowFlippedDrifting(HeroController __instance) {
-		UnityEngine.Debug.Log("float fsm edit");
 		PlayMakerFSM fsm = __instance.umbrellaFSM;
 		if (!fsm.Fsm.preprocessed)
 			fsm.Preprocess();
 
-		FsmBool isFlipped = fsm.AddBoolVariable($"{V6Plugin.Id} Is Flipped");
-		isFlipped.Value = false;
+		FsmState
+			bumpL = fsm.GetState("Bump L")!;
 
-		FsmState floatIdle = fsm.GetState("Float Idle")!;
+		fsm.DoGravityFlipEdit(__instance,
+			checkStates: [
+				fsm.GetState("Antic")!
+			],
+			affectedStates: [
+				fsm.GetState("Inflate")!,
+				fsm.GetState("Start")!,
+				fsm.GetState("Float Idle")!,
+				bumpL,
+				fsm.GetState("Bump R")!,
+			],
+			otherEdits: FlipBumpL
+		);
 
-		// reverse the speed if gravity is flipped
+		void FlipBumpL() {
+			FloatClamp clamp = (FloatClamp)Array.Find(
+				bumpL.Actions,
+				x => x is FloatClamp fc
+					&& fc.floatVariable.Name.Contains("Velocity")
+			);
 
-		AccelerateToY accelAction = floatIdle.GetFirstActionOfType<AccelerateToY>()!;
-		float origFloatSpeed = accelAction.targetSpeed.Value;
-
-		floatIdle.InsertLambdaMethod(0, finished => {
-			if (isFlipped.Value != V6Plugin.GravityIsFlipped) {
-				isFlipped.Value = V6Plugin.GravityIsFlipped;
-				accelAction.targetSpeed.Value *= -1;
-			}
-			finished();
-		});
+			clamp.minValue.Value *= -1;
+			clamp.maxValue.Value *= -1;
+			(clamp.minValue, clamp.maxValue) = (clamp.maxValue, clamp.minValue);
+		}
 	}
 
 }
