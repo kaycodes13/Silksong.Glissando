@@ -58,8 +58,10 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 
 	private void OnDestroy() {
 		Harmony.UnpatchSelf();
-		if (GravityIsFlipped)
-			FlipGravity();
+		if (GravityIsFlipped) {
+			FlipGravity(HeroController.instance);
+			GravityIsFlipped = false;
+		}
 	}
 
 	public string ModMenuName() => Name;
@@ -131,8 +133,7 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 		}
 	}
 
-	internal static void FlipGravity() {
-		var hc = HeroController.instance;
+	internal static void FlipGravity(HeroController hc, bool jumpBoost = false) {
 		if (!hc)
 			return;
 
@@ -145,15 +146,22 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 		hc.FLOAT_SPEED *= -1;
 		hc.JUMP_SPEED *= -1;
 
-		hc.DEFAULT_GRAVITY *= -1; // do NOT uncomment this, this breaks drifter's cloak completely
+		hc.DEFAULT_GRAVITY *= -1;
 		hc.AIR_HANG_GRAVITY *= -1;
-		hc.AIR_HANG_ACCEL *= -1; // stops the "holding jump while flipped mega jitter"
+		hc.AIR_HANG_ACCEL *= -1;
 		hc.rb2d.gravityScale *= -1;
-		hc.rb2d.linearVelocity = new(hc.rb2d.linearVelocity.x, 0);
 
 		Vector3 scale = hc.transform.localScale;
 		scale.y *= -1;
 		hc.transform.localScale = scale;
+		
+		float yVel = jumpBoost ? -(hc.JUMP_SPEED / 2f) : 0;
+		hc.StartCoroutine(ApplyBoostVelocity());
+
+		IEnumerator ApplyBoostVelocity() {
+			yield return null;
+			hc.rb2d.linearVelocityY = yVel;
+		}
 	}
 
 	internal static void FlipHeroVelocity() {
