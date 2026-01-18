@@ -100,16 +100,6 @@ internal static class HeroFsmsPatch {
 			jumpAntic = fsm.GetState("Jump Antic")!,
 			dashedState = fsm.GetState("Dashed")!;
 
-		fsm.DoGravityFlipEdit(
-			hc,
-			checkStates: [
-				fsm.GetState("Start Sprint")!,
-				airSprintL,
-				airSprintR,
-			],
-			affectedStates: [fsm.GetState("Start Sprint")!]
-		);
-
 		dashedState.InsertAction(0, new SetBoolValue {
 			boolVariable = startedFromJump,
 			boolValue = false
