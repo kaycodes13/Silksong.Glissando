@@ -87,6 +87,36 @@ internal static class HeroPhysicsPatch {
 	}
 
 
+	[HarmonyPatch(nameof(HeroController.FallCheck))]
+	[HarmonyTranspiler]
+	private static IEnumerable<CodeInstruction> FlippedFallCheck(IEnumerable<CodeInstruction> instructions) {
+		return new CodeMatcher(instructions).Start()
+
+			// first comparison, to Mathf.Epsilon
+			.MatchEndForward([
+				new(x => Callvirt(x, $"get_{nameof(Rigidbody2D.linearVelocity)}")),
+				new(x => Ldfld(x, "y")),
+			])
+			.Advance(1)
+			.Insert(InvertFloatIfFlipped())
+
+			// second comparison, y velocity and max fall velocity
+			.MatchEndForward([
+				new(x => Callvirt(x, $"get_{nameof(Rigidbody2D.linearVelocity)}")),
+				new(x => Ldfld(x, "y")),
+			])
+			.Advance(1)
+			.Insert(InvertFloatIfFlipped())
+			.MatchEndForward([
+				new(x => Ldfld(x, nameof(HeroController.MAX_FALL_VELOCITY))),
+				new(OpCodes.Neg),
+			])
+			.Insert(InvertFloatIfFlipped())
+
+			.InstructionEnumeration();
+	}
+
+
 	[HarmonyPatch(nameof(HeroController.FixedUpdate))]
 	[HarmonyTranspiler]
 	private static IEnumerable<CodeInstruction> FlippedPhysicsUpdate(IEnumerable<CodeInstruction> instructions) {

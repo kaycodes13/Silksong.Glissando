@@ -85,11 +85,11 @@ internal static class FsmFlipUtil {
 				return true;
 			case SetGravity2dScale ac:
 				if (ac.gameObject.GetSafe(ac) == hero)
-					ac.rigidbody2d.gravityScale *= -1;
+					ac.gravityScale.Value *= -1;
 				return true;
 			case SetGravity2dScaleV2 ac:
 				if (ac.gameObject.GetSafe(ac) == hero)
-					ac.rigidbody2d.gravityScale *= -1;
+					ac.gravityScale.Value *= -1;
 				return true;
 			case SetVelocity2dConditional ac:
 				if (ac.gameObject.GetSafe(ac) == hero) {
