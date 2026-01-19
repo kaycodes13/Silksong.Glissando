@@ -7,6 +7,7 @@ using Silksong.ModMenu.Plugin;
 using Silksong.ModMenu.Screens;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace VVVVVV;
@@ -161,6 +162,34 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 		IEnumerator ApplyBoostVelocity() {
 			yield return null;
 			hc.rb2d.linearVelocityY = yVel;
+		}
+
+		foreach(HeroController.ConfigGroup cfg in hc.configs) {
+			bool flippedCharge = false;
+			foreach(Transform attack in cfg.ActiveRoot.transform) {
+				if (attack && attack.GetComponent<NailSlashTravel>() is NailSlashTravel nailTravel) {
+					if (cfg.ChargeSlash == attack.gameObject)
+						flippedCharge = true;
+					hc.StartCoroutine(InvertNailTravel(attack.gameObject, nailTravel));
+				}
+			}
+			if (!flippedCharge && cfg.ChargeSlash && cfg.ChargeSlash.GetComponent<NailSlashTravel>() is NailSlashTravel chargeTravel) {
+				hc.StartCoroutine(InvertNailTravel(cfg.ChargeSlash, chargeTravel));
+			}
+		}
+
+		IEnumerator InvertNailTravel(GameObject attack, NailSlashTravel nailTravel) {
+			while (nailTravel.travelRoutine != null)
+				yield return null;
+
+			Vector2 dist = nailTravel.travelDistance;
+			dist = dist with { y = -dist.y };
+			nailTravel.travelDistance = dist;
+
+			nailTravel.groundedYOffset *= -1;
+
+			if (nailTravel.maxYOffset != null)
+				nailTravel.maxYOffset.Value *= -1;
 		}
 	}
 
