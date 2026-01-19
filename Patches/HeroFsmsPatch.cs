@@ -64,7 +64,6 @@ internal static class HeroFsmsPatch {
 	}
 
 
-
 	private static void EditDownAttacks(HeroController hc) {
 		didDownAttackEdit = true;
 
@@ -73,9 +72,45 @@ internal static class HeroFsmsPatch {
 		if (!fsm.Fsm.preprocessed)
 			fsm.Preprocess();
 
+		string[] varNames = [
+			"Rpr DownSlash",
+			"Witch Downslash",
+			"Followup Slash",
+			"SpinSlash",
+			"SpinSlashRage",
+			"Shaman Downslash",
+			"Toolmaster Downslash",
+			"Toolmaster Downslash Charged",
+		];
+
+		FsmGameObject[] downAttacks = [..
+			varNames.Select(fsm.FindGameObjectVariable)
+					.Where(x => x != null).Cast<FsmGameObject>()
+		];
+
 		FsmState idleState = fsm.GetState("Idle")!;
 
-		fsm.DoGravityFlipEdit(hc, [..idleState.Transitions.Select(x => x.ToFsmState)]);
+		fsm.DoGravityFlipEdit(
+			hc,
+			checkStates: [.. idleState.Transitions.Select(x => x.ToFsmState)],
+			otherEdits: FlipKnockbackDirection
+		);
+
+		void FlipKnockbackDirection() {
+			foreach(GameObject attack in downAttacks.Select(x => x.Value)) {
+				DamageEnemies damager = attack.GetComponent<DamageEnemies>();
+				if (!damager)
+					continue;
+				int direction = DirectionUtils.GetCardinalDirection(damager.direction);
+				if (
+					(V6Plugin.GravityIsFlipped && direction == DirectionUtils.Down)
+					|| (!V6Plugin.GravityIsFlipped && direction == DirectionUtils.Up)
+				) {
+					damager.FlipDirection();
+				}
+			}
+
+		}
 	}
 
 	private static void EditSprint(HeroController hc) {
