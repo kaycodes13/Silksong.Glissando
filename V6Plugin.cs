@@ -187,15 +187,15 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 				if (attack && attack.GetComponent<NailSlashTravel>() is NailSlashTravel nailTravel) {
 					if (cfg.ChargeSlash == attack.gameObject)
 						flippedCharge = true;
-					hc.StartCoroutine(InvertNailTravel(attack.gameObject, nailTravel));
+					hc.StartCoroutine(InvertNailTravel(nailTravel));
 				}
 			}
 			if (!flippedCharge && cfg.ChargeSlash && cfg.ChargeSlash.GetComponent<NailSlashTravel>() is NailSlashTravel chargeTravel) {
-				hc.StartCoroutine(InvertNailTravel(cfg.ChargeSlash, chargeTravel));
+				hc.StartCoroutine(InvertNailTravel(chargeTravel));
 			}
 		}
 
-		IEnumerator InvertNailTravel(GameObject attack, NailSlashTravel nailTravel) {
+		IEnumerator InvertNailTravel(NailSlashTravel nailTravel) {
 			while (nailTravel.travelRoutine != null)
 				yield return null;
 

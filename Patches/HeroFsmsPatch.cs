@@ -129,7 +129,6 @@ internal static class HeroFsmsPatch {
 		string pirouetteAnimName = "Shuttlecock";
 		FsmBool
 			isFlipped = fsm.GetBoolVariable(FsmFlipUtil.FLIP_BOOL_NAME),
-			startedFromJump = fsm.GetBoolVariable($"{V6Plugin.Id} Jumped To Get Airborne"),
 			shouldPirouette = fsm.GetBoolVariable($"{V6Plugin.Id} Should Pirouette");
 		FsmString
 			sprintAirAnim = fsm.FindStringVariable("Sprint Air Anim")!;
@@ -142,11 +141,11 @@ internal static class HeroFsmsPatch {
 			dashedState = fsm.GetState("Dashed")!;
 
 		dashedState.InsertAction(0, new SetBoolValue {
-			boolVariable = startedFromJump,
+			boolVariable = shouldPirouette,
 			boolValue = false
 		});
 		jumpAntic.InsertAction(0, new SetBoolValue {
-			boolVariable = startedFromJump,
+			boolVariable = shouldPirouette,
 			boolValue = true
 		});
 
@@ -157,19 +156,12 @@ internal static class HeroFsmsPatch {
 					&& t2d.clipName.UsesVariable
 					&& t2d.clipName.Name == sprintAirAnim.Name
 			);
-			state.InsertActions(index,
-				new BoolAllTrue {
-					boolVariables = [isFlipped, startedFromJump],
-					storeResult = shouldPirouette,
-				},
-				new ConvertBoolToString {
-					boolVariable = shouldPirouette,
-					stringVariable = sprintAirAnim,
-
-					falseString = sprintAirAnim,
-					trueString = pirouetteAnimName
-				}
-			);
+			state.InsertAction(index, new ConvertBoolToString {
+				boolVariable = shouldPirouette,
+				stringVariable = sprintAirAnim,
+				falseString = sprintAirAnim,
+				trueString = pirouetteAnimName
+			});
 		}
 
 		int loopIndex = Array.FindIndex(
