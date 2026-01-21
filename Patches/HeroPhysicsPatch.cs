@@ -42,13 +42,9 @@ internal static class HeroPhysicsPatch {
 		__result = __instance.checkTouchGround.IsTouchingGround
 			= IsRayHitting(left) || IsRayHitting(right) || IsRayHitting(center);
 
-		if (__result)
-			__instance.cState.onGround = true;
-
-		static bool IsRayHitting(Vector2 origin){
-			Debug.DrawRay(origin, Vector2.up * 0.32f, Color.magenta, 2f);
+		static bool IsRayHitting(Vector2 origin) {
 			return Helper.IsRayHittingNoTriggers(
-				origin, Vector2.up, 1f, HeroController.GROUND_LAYERS
+				origin, Vector2.up, 0.16f, HeroController.GROUND_LAYERS
 			);
 		}
 	}
