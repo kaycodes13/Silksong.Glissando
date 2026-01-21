@@ -43,10 +43,10 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 		KeyCode.RightAlt,
 	];
 
-	private const float FLIP_TIME_LIMIT = 0.1f;
+	private const int FLIP_FRAME_LIMIT = 5;
 	private const float RESPAWN_TIME_LIMIT = 5;
 
-	private static float flipTimer = 0;
+	private static int flipTimer = 0;
 	private static float respawnTimer = 0;
 
 	private void Awake() {
@@ -84,7 +84,7 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 		if (respawnTimer > 0)
 			respawnTimer -= Time.deltaTime;
 		if (flipTimer > 0)
-			flipTimer -= Time.deltaTime;
+			flipTimer--;
 	}
 
 	public string ModMenuName() => Name;
@@ -154,7 +154,7 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 			return;
 
 		GravityIsFlipped = !GravityIsFlipped;
-		flipTimer = FLIP_TIME_LIMIT;
+		flipTimer = FLIP_FRAME_LIMIT;
 
 		hc.MAX_FALL_VELOCITY *= -1;
 		hc.MAX_FALL_VELOCITY_WEIGHTED *= -1;
