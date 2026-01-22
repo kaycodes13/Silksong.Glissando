@@ -5,7 +5,7 @@ using System.Reflection.Emit;
 using UnityEngine;
 using static VVVVVV.Utils.ILUtil;
 
-namespace VVVVVV.Patches;
+namespace VVVVVV.Patches.FsmActions;
 
 [HarmonyPatch]
 internal static class FallClampActionPatch {

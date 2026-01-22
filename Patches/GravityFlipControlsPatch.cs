@@ -5,6 +5,15 @@ namespace VVVVVV.Patches;
 [HarmonyPatch(typeof(HeroController))]
 internal static class GravityFlipControlsPatch {
 
+	[HarmonyPatch(nameof(HeroController.CanDoubleJump))]
+	[HarmonyPostfix]
+	private static void AllowFloatOnDownAndJump(HeroController __instance, ref bool __result) {
+		if (!__result)
+			return;
+
+		__result = __instance.inputHandler.inputActions.Down.IsPressed == false;
+	}
+
 	[HarmonyPatch(nameof(HeroController.Awake))]
 	[HarmonyPostfix]
 	private static void FixFlippingOnReload() {

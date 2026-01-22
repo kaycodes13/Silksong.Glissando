@@ -42,6 +42,8 @@ internal static class HeroFsmsPatch {
 	[HarmonyPrefix]
 	[HarmonyPriority(Priority.First)]
 	private static void HeroStart(HeroController __instance) {
+		EditDrifterCloak(__instance);
+
 		if (!didDownAttackEdit)
 			EditDownAttacks(__instance);
 		if (!didSprintEdit)
@@ -51,7 +53,6 @@ internal static class HeroFsmsPatch {
 		if (!didScrambleEdit)
 			EditWallScramble(__instance);
 	}
-
 
 	[HarmonyPatch(typeof(PlayMakerFSM), nameof(PlayMakerFSM.Start))]
 	[HarmonyPrefix]
@@ -76,6 +77,41 @@ internal static class HeroFsmsPatch {
 			= didChargeAttackEdit
 			= didScrambleEdit
 			= false;
+	}
+
+
+	private static void EditDrifterCloak(HeroController hc) {
+		PlayMakerFSM fsm = hc.umbrellaFSM;
+		if (!fsm.Fsm.preprocessed)
+			fsm.Preprocess();
+
+		FsmState
+			bumpL = fsm.GetState("Bump L")!;
+
+		fsm.DoGravityFlipEdit(
+			hc,
+			checkStates: [fsm.GetState("Antic")!],
+			affectedStates: [
+				fsm.GetState("Inflate")!,
+				fsm.GetState("Start")!,
+				fsm.GetState("Float Idle")!,
+				bumpL,
+				fsm.GetState("Bump R")!,
+			],
+			otherEdits: FlipBumpL
+		);
+
+		void FlipBumpL() {
+			FloatClamp clamp = (FloatClamp)Array.Find(
+				bumpL.Actions,
+				x => x is FloatClamp fc
+					&& fc.floatVariable.Name.Contains("Velocity")
+			);
+
+			clamp.minValue.Value *= -1;
+			clamp.maxValue.Value *= -1;
+			(clamp.minValue, clamp.maxValue) = (clamp.maxValue, clamp.minValue);
+		}
 	}
 
 
