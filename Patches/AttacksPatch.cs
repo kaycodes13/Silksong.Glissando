@@ -6,6 +6,8 @@ namespace VVVVVV.Patches;
 [HarmonyPatch(typeof(HeroController))]
 internal static class AttacksPatch {
 
+	// See HeroFsmsPatch for the FSM-controlled attacks
+
 	[HarmonyPatch(typeof(DamageEnemies), nameof(DamageEnemies.SetDirection))]
 	[HarmonyPostfix]
 	private static void FlipNonFsmAttackDirections(DamageEnemies __instance, ref float newDirection) {

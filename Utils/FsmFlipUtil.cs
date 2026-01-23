@@ -3,6 +3,7 @@ using HutongGames.PlayMaker.Actions;
 using Silksong.FsmUtil;
 using System;
 using System.Linq;
+using TeamCherry.SharedUtils;
 using UnityEngine;
 using Sv2dComparison = HutongGames.PlayMaker.Actions.SetVelocity2dConditional.ComparisonType;
 
@@ -112,6 +113,23 @@ internal static class FsmFlipUtil {
 							break;
 					}
 				}
+				return true;
+
+			case CheckCollisionSide ac:
+				if (ac.collidingObject.GetSafe(ac) == hero)
+					(ac.bottomHitEvent, ac.topHitEvent) = (ac.topHitEvent, ac.bottomHitEvent);
+				return true;
+			case CheckCollisionSideV2 ac:
+				if (ac.collidingObject.GetSafe(ac) == hero)
+					(ac.bottomHitEvent, ac.topHitEvent) = (ac.topHitEvent, ac.bottomHitEvent);
+				return true;
+			case CheckCollisionSideEnter ac:
+				if (ac.col2d && ac.col2d.gameObject == hero)
+					(ac.bottomHitEvent, ac.topHitEvent) = (ac.topHitEvent, ac.bottomHitEvent);
+				return true;
+			case CheckCollisionSideEnterV2 ac:
+				if (ac.col2d && ac.col2d.gameObject == hero)
+					(ac.bottomHitEvent, ac.topHitEvent) = (ac.topHitEvent, ac.bottomHitEvent);
 				return true;
 		}
 		return false;

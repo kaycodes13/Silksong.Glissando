@@ -53,8 +53,8 @@ internal static class ILUtil {
 			index = 2;
 		else if (x.opcode == OpCodes.Ldloc_3)
 			index = 3;
-		else if (x.opcode == OpCodes.Ldloc || x.opcode == OpCodes.Ldloc_S)
-			index = (int)x.operand;
+		else if ((x.opcode == OpCodes.Ldloc || x.opcode == OpCodes.Ldloc_S) && x.operand is LocalBuilder lb)
+			index = lb.LocalIndex;
 
 		return index >= 0;
 	}
@@ -85,8 +85,8 @@ internal static class ILUtil {
 			index = 2;
 		else if (x.opcode == OpCodes.Stloc_3)
 			index = 3;
-		else if (x.opcode == OpCodes.Stloc || x.opcode == OpCodes.Stloc_S)
-			index = (int)x.operand;
+		else if ((x.opcode == OpCodes.Stloc || x.opcode == OpCodes.Stloc_S) && x.operand is LocalBuilder lb)
+			index = lb.LocalIndex;
 
 		return index >= 0;
 	}
