@@ -4,6 +4,7 @@ using BepInEx.Logging;
 using GlobalEnums;
 using HarmonyLib;
 using Silksong.ModMenu.Elements;
+using Silksong.ModMenu.Models;
 using Silksong.ModMenu.Plugin;
 using Silksong.ModMenu.Screens;
 using System.Collections;
@@ -17,14 +18,20 @@ namespace VVVVVV;
 [BepInDependency("org.silksong-modding.modmenu", "0.2.0")]
 public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 
+	internal static V6Plugin Instance { get; private set; } = null!;
+
 	public static bool GravityIsFlipped { get; internal set; } = false;
+	public static bool FaydownFlipsGravity => Instance.faydownFlips?.Value ?? false;
 
 	internal static ManualLogSource Log { get; private set; } = null!;
 
 	private Harmony Harmony { get; } = new(Id);
 
-	private ConfigEntry<KeyCode> RespawnKey { get; set; } = null!;
-	ChoiceElement<KeyCode>? respawnKeyOption = null;
+	private ConfigEntry<bool>? faydownFlips;
+	ChoiceElement<bool>? flipdownOption;
+
+	private ConfigEntry<KeyCode>? respawnKey;
+	private ChoiceElement<KeyCode>? respawnKeyOption;
 	private static readonly List<KeyCode> bindableKeys = [
 		KeyCode.None,
 		KeyCode.F3,
@@ -50,15 +57,31 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 	private static float respawnTimer = 0;
 
 	private void Awake() {
-		Harmony.PatchAll();
+		Instance = this;
 		Log = Logger;
 
-		RespawnKey = Config.Bind("", "RespawnKeybind", KeyCode.None);
-		if (!bindableKeys.Contains(RespawnKey.Value))
-			RespawnKey.Value = KeyCode.None;
-		RespawnKey.SettingChanged += RespawnKeyChanged;
+		respawnKey = Config.Bind("", "RespawnKeybind", KeyCode.None);
+		if (!bindableKeys.Contains(respawnKey.Value))
+			respawnKey.Value = KeyCode.None;
+		respawnKey.SettingChanged += RespawnKeyChanged;
+
+		faydownFlips = Config.Bind("", "FlipdownCloak", false);
+		faydownFlips.SettingChanged += FlipdownChanged;
 
 		Logger.LogInfo($"Plugin {Name} ({Id}) has loaded!");
+		
+		void RespawnKeyChanged(object sender, System.EventArgs e) {
+			if (respawnKeyOption != null && respawnKeyOption.Value != respawnKey.Value)
+				respawnKeyOption.Value = respawnKey.Value;
+	}
+		void FlipdownChanged(object sender, System.EventArgs e) {
+			if (flipdownOption != null && flipdownOption.Value != faydownFlips.Value)
+				flipdownOption.Value = faydownFlips.Value;
+		}
+	}
+
+	private void Start() {
+		Harmony.PatchAll();
 	}
 
 	private void OnDestroy() {
@@ -75,7 +98,7 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 			&& gm.IsGameplayScene() && !gm.IsGamePaused()
 			&& !HeroController.instance.controlReqlinquished
 			&& respawnTimer <= 0
-			&& RespawnKey.Value != KeyCode.None && Input.GetKeyDown(RespawnKey.Value)
+			&& respawnKey!.Value != KeyCode.None && Input.GetKeyDown(respawnKey!.Value)
 		) {
 			respawnTimer = RESPAWN_TIME_LIMIT;
 			QueueRespawnHero();
@@ -98,23 +121,23 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 			bindableKeys,
 			"Useful for getting unstuck from weird corners in the roof."
 		) {
-			Value = RespawnKey.Value
+			Value = respawnKey!.Value
 		};
-		respawnKeyOption.OnValueChanged += SetKeybind;
+		respawnKeyOption.OnValueChanged += key => respawnKey.Value = key;
+
+		ChoiceElement<bool> faydownOption = new(
+			"Flipdown Cloak",
+			ChoiceModels.ForBool("Off", "On"),
+			"Make the Faydown Cloak flip gravity instead of jumping."
+		) {
+			Value = faydownFlips!.Value
+		};
+		faydownOption.OnValueChanged += value => faydownFlips.Value = value;
 
 		SimpleMenuScreen screen = new(Name);
-		screen.AddRange([respawnBtn, respawnKeyOption]);
+		screen.AddRange([respawnBtn, respawnKeyOption, faydownOption]);
 
 		return screen;
-
-		void SetKeybind(KeyCode key) {
-			RespawnKey.Value = key;
-		}
-	}
-
-	private void RespawnKeyChanged(object sender, System.EventArgs e) {
-		if (respawnKeyOption != null && respawnKeyOption.Value != RespawnKey.Value)
-			respawnKeyOption.Value = RespawnKey.Value;
 	}
 
 	internal static void QueueRespawnHero() {

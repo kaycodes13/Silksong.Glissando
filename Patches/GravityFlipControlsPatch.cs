@@ -8,7 +8,7 @@ internal static class GravityFlipControlsPatch {
 	[HarmonyPatch(nameof(HeroController.CanDoubleJump))]
 	[HarmonyPostfix]
 	private static void AllowFloatOnDownAndJump(HeroController __instance, ref bool __result) {
-		if (!__result)
+		if (!__result || !V6Plugin.FaydownFlipsGravity)
 			return;
 
 		__result = __instance.inputHandler.inputActions.Down.IsPressed == false;
@@ -37,8 +37,10 @@ internal static class GravityFlipControlsPatch {
 	[HarmonyPatch(nameof(HeroController.DoDoubleJump))]
 	[HarmonyPostfix]
 	private static void FlipOnDoubleJump(HeroController __instance) {
-		V6Plugin.FlipGravity(__instance);
-		__instance.CancelHeroJump();
+		if (V6Plugin.FaydownFlipsGravity) {
+			V6Plugin.FlipGravity(__instance);
+			__instance.CancelHeroJump();
+		}
 	}
 
 	[HarmonyPatch(nameof(HeroController.HazardRespawn))]
