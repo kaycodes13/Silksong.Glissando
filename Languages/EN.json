@@ -4,6 +4,6 @@
 	"GET_DOUBLEJUMP_2": "Make dormant or reawaken this powerful ability in the mod options menu.",
 	"INV_DESC_DRESS_DJ_ON": "Protective garb lined with the uplifting down of a Fayforn and sewn through with flexible spines. Its fabled power is awoken.",
 	"INV_DESC_DRESS_DJ_OFF": "Protective garb lined with the uplifting down of a Fayforn and sewn through with flexible spines. Its fabled power lies dormant.",
-	"INV_DESC_DRESS_DJ_EXTRA": "When awakened from the mod options menu, hold DOWN to suppress the ability and float.",
+	"INV_DESC_DRESS_DJ_EXTRA": "Can be awakened from the mod options menu. Hold DOWN to suppress its ability and float.",
 	"PROMPT_DJ": "Flip Gravity"
 }
