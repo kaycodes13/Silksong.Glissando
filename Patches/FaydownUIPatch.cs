@@ -2,31 +2,31 @@
 using System.Collections.Generic;
 using System.Linq;
 using TeamCherry.Localization;
+using VVVVVV.Utils;
 
 namespace VVVVVV.Patches;
 
 [HarmonyPatch]
 internal static class FaydownUIPatch {
 
-	internal const string LANG_SHEET = $"Mods.{V6Plugin.Id}";
 	private static string[]? langKeys;
 
 	[HarmonyPatch(typeof(Language), nameof(Language.Get), [typeof(string), typeof(string)])]
 	[HarmonyPrefix]
 	private static void ReplaceFaydownStrings(ref string key, ref string sheetTitle) {
-		langKeys ??= [.. Language.GetKeys(LANG_SHEET)];
+		langKeys ??= [.. Language.GetKeys(LangUtil.SHEET)];
 
 		if (key == "PROMPT_DJ") {
 			// this key should be left alone when faydown is normal
 			if (V6Plugin.FaydownFlipsGravity)
-				sheetTitle = LANG_SHEET;
+				sheetTitle = LangUtil.SHEET;
 		}
 		else if (key == "INV_DESC_DRESS_DJ") {
-			sheetTitle = LANG_SHEET;
+			sheetTitle = LangUtil.SHEET;
 			key += V6Plugin.FaydownFlipsGravity ? "_ON" : "_OFF";
 		}
 		else if (langKeys.Contains(key))
-			sheetTitle = LANG_SHEET;
+			sheetTitle = LangUtil.SHEET;
 	}
 
 	[HarmonyPatch(typeof(CollectableItemStates), nameof(CollectableItemStates.GetDescription))]
@@ -43,7 +43,7 @@ internal static class FaydownUIPatch {
 				.Any(z => z.FieldName == nameof(PlayerData.hasDoubleJump))
 		) {
 			__instance.states[index] = __instance.states[index] with {
-				DescriptionExtra = new(LANG_SHEET, "INV_DESC_DRESS_DJ_EXTRA")
+				DescriptionExtra = LangUtil.String("INV_DESC_DRESS_DJ_EXTRA")
 			};
 		}
 	}

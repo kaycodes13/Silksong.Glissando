@@ -5,5 +5,16 @@
 	"INV_DESC_DRESS_DJ_ON": "Protective garb lined with the uplifting down of a Fayforn and sewn through with flexible spines. Its fabled power is awoken.",
 	"INV_DESC_DRESS_DJ_OFF": "Protective garb lined with the uplifting down of a Fayforn and sewn through with flexible spines. Its fabled power lies dormant.",
 	"INV_DESC_DRESS_DJ_EXTRA": "Can be awakened from the mod options menu. Hold DOWN to suppress its ability and float.",
-	"PROMPT_DJ": "Flip Gravity"
+	"PROMPT_DJ": "Flip Gravity",
+
+	"MENU_BOOL_FALSE": "Off",
+	"MENU_BOOL_TRUE": "On",
+
+	"MENU_RESPAWN_BUTTON": "Respawn Hornet",
+
+	"MENU_RESPAWN_KEY_LABEL": "Respawn Key",
+	"MENU_RESPAWN_KEY_DESC": "Useful for getting unstuck from weird corners in the roof.",
+
+	"MENU_FLIPDOWN_LABEL": "Flipdown Cloak",
+	"MENU_FLIPDOWN_DESC": "Make the Faydown Cloak flip gravity instead of jumping."
 }

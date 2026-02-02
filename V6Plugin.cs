@@ -3,13 +3,13 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using GlobalEnums;
 using HarmonyLib;
-using Silksong.ModMenu.Elements;
-using Silksong.ModMenu.Models;
 using Silksong.ModMenu.Plugin;
 using Silksong.ModMenu.Screens;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using VVVVVV.Menu;
+using VVVVVV.Utils;
 
 namespace VVVVVV;
 
@@ -29,10 +29,10 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 	private Harmony Harmony { get; } = new(Id);
 
 	private ConfigEntry<bool>? faydownFlips;
-	private ChoiceElement<bool>? faydownOption;
+	private LocalisedChoiceElement<bool>? faydownOption;
 
 	private ConfigEntry<KeyCode>? respawnKey;
-	private ChoiceElement<KeyCode>? respawnKeyOption;
+	private LocalisedChoiceElement<KeyCode>? respawnKeyOption;
 	private static readonly List<KeyCode> bindableKeys = [
 		KeyCode.None,
 		KeyCode.F3,
@@ -116,22 +116,26 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 	public string ModMenuName() => Name;
 
 	public AbstractMenuScreen BuildCustomMenu() {
-		TextButton respawnBtn = new("Respawn Hornet") {
+		LocalisedTextButton respawnBtn = new(LangUtil.String("MENU_RESPAWN_BUTTON")) {
 			OnSubmit = QueueRespawnHero
 		};
+
 		respawnKeyOption = new(
-			"Respawn Key",
+			LangUtil.String("MENU_RESPAWN_KEY_LABEL"),
 			bindableKeys,
-			"Useful for getting unstuck from weird corners in the roof."
+			LangUtil.String("MENU_RESPAWN_KEY_DESC")
 		) {
 			Value = respawnKey!.Value
 		};
 		respawnKeyOption.OnValueChanged += key => respawnKey.Value = key;
 
 		faydownOption = new(
-			"Flipdown Cloak",
-			ChoiceModels.ForBool("Off", "On"),
-			"Make the Faydown Cloak flip gravity instead of jumping."
+			LangUtil.String("MENU_FLIPDOWN_LABEL"),
+			new LocalisedListChoiceModel<bool>([
+				(false, LangUtil.String("MENU_BOOL_FALSE")),
+				(true, LangUtil.String("MENU_BOOL_TRUE")),
+			]),
+			LangUtil.String("MENU_FLIPDOWN_DESC")
 		) {
 			Value = faydownFlips!.Value
 		};
@@ -168,10 +172,10 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 			hc.SetState(ActorStates.no_input);
 			hc.heroInPositionDelayed += ForceRemaskerUpdate;
 			if (screenFader) {
-			hc.StartInvulnerable(0.56f);
-			gm.cameraCtrl.FadeOut(CameraFadeType.HERO_HAZARD_DEATH);
+				hc.StartInvulnerable(0.56f);
+				gm.cameraCtrl.FadeOut(CameraFadeType.HERO_HAZARD_DEATH);
 				while (screenFader && screenFader.color.a < 1)
-				yield return null;
+					yield return null;
 			}
 			gm.HazardRespawn();
 
