@@ -57,6 +57,8 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 	private static int flipTimer = 0;
 	private static float respawnTimer = 0;
 
+	private Coroutine? respawnCoro;
+
 	private void Awake() {
 		Instance = this;
 		Log = Logger;
@@ -142,7 +144,7 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 	}
 
 	internal static void QueueRespawnHero() {
-		if (GameManager.SilentInstance is not GameManager gm || gm.IsNonGameplayScene())
+		if (GameManager.SilentInstance is not GameManager gm || gm.IsNonGameplayScene() || Instance.respawnCoro != null)
 			return;
 
 		var hc = HeroController.instance;
@@ -150,6 +152,8 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 		SpriteRenderer? screenFader = null;
 		if (gm.cameraCtrl.fadeFSM.transform.Find("Screen Fader") is Transform t)
 			screenFader = t.GetComponent<SpriteRenderer>();
+
+		Instance.respawnCoro = Instance.StartCoroutine(RespawnHero());
 
 		IEnumerator RespawnHero() {
 			if (gm.IsGamePaused()) {
@@ -170,6 +174,11 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 				yield return null;
 			}
 			gm.HazardRespawn();
+
+			while (hc.hero_state == ActorStates.no_input || hc.doingHazardRespawn)
+				yield return null;
+
+			Instance.respawnCoro = null;
 		}
 
 		void ForceRemaskerUpdate(bool _) {
