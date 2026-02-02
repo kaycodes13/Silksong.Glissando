@@ -97,7 +97,7 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 		if (
 			GameManager.SilentInstance is GameManager gm
 			&& gm.IsGameplayScene() && !gm.IsGamePaused()
-			&& !HeroController.instance.controlReqlinquished
+			&& !gm.hero_ctrl.controlReqlinquished
 			&& respawnTimer <= 0
 			&& respawnKey!.Value != KeyCode.None && Input.GetKeyDown(respawnKey!.Value)
 		) {
@@ -146,10 +146,10 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 			return;
 
 		var hc = HeroController.instance;
-		SpriteRenderer screenFader = gm.cameraCtrl.fadeFSM.transform
-			.Find("Screen Fader").GetComponent<SpriteRenderer>();
 
-		gm.StartCoroutine(RespawnHero());
+		SpriteRenderer? screenFader = null;
+		if (gm.cameraCtrl.fadeFSM.transform.Find("Screen Fader") is Transform t)
+			screenFader = t.GetComponent<SpriteRenderer>();
 
 		IEnumerator RespawnHero() {
 			if (gm.IsGamePaused()) {
@@ -163,10 +163,12 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 			hc.doingHazardRespawn = true;
 			hc.SetState(ActorStates.no_input);
 			hc.heroInPositionDelayed += ForceRemaskerUpdate;
+			if (screenFader) {
 			hc.StartInvulnerable(0.56f);
 			gm.cameraCtrl.FadeOut(CameraFadeType.HERO_HAZARD_DEATH);
-			while (screenFader.color.a < 1)
+				while (screenFader && screenFader.color.a < 1)
 				yield return null;
+			}
 			gm.HazardRespawn();
 		}
 
