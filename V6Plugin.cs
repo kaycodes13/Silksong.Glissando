@@ -1,55 +1,28 @@
 using BepInEx;
-using BepInEx.Configuration;
 using BepInEx.Logging;
 using GlobalEnums;
 using HarmonyLib;
 using Silksong.ModMenu.Plugin;
 using Silksong.ModMenu.Screens;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using VVVVVV.Menu;
-using VVVVVV.Utils;
+using VVVVVV.Settings;
 
 namespace VVVVVV;
 
 [BepInAutoPlugin(id: "io.github.kaycodes13.vvvvvv")]
 [BepInDependency("org.silksong-modding.fsmutil", "0.3.12")]
 [BepInDependency("org.silksong-modding.modmenu", "0.2.0")]
-[BepInDependency("org.silksong-modding.i18n")]
+[BepInDependency("org.silksong-modding.i18n", "0.1.0")]
 public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 
-	internal static V6Plugin Instance { get; private set; } = null!;
-
 	public static bool GravityIsFlipped { get; internal set; } = false;
-	public static bool FaydownFlipsGravity => Instance.faydownFlips?.Value ?? false;
 
+	internal static V6Plugin Instance { get; private set; } = null!;
 	internal static ManualLogSource Log { get; private set; } = null!;
+	internal static ModSettings Settings { get; } = new();
 
 	private Harmony Harmony { get; } = new(Id);
-
-	private ConfigEntry<bool>? faydownFlips;
-	private LocalisedChoiceElement<bool>? faydownOption;
-
-	private ConfigEntry<KeyCode>? respawnKey;
-	private LocalisedChoiceElement<KeyCode>? respawnKeyOption;
-	private static readonly List<KeyCode> bindableKeys = [
-		KeyCode.None,
-		KeyCode.F3,
-		KeyCode.F4,
-		KeyCode.F5,
-		KeyCode.F6,
-		KeyCode.F7,
-		KeyCode.F8,
-		KeyCode.F9,
-		KeyCode.F10,
-		KeyCode.Backspace,
-		KeyCode.Tab,
-		KeyCode.Backslash,
-		KeyCode.Slash,
-		KeyCode.LeftAlt,
-		KeyCode.RightAlt,
-	];
 
 	private const int FLIP_FRAME_LIMIT = 5;
 	private const float RESPAWN_TIME_LIMIT = 5;
@@ -62,25 +35,8 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 	private void Awake() {
 		Instance = this;
 		Log = Logger;
-
-		respawnKey = Config.Bind("", "RespawnKeybind", KeyCode.None);
-		if (!bindableKeys.Contains(respawnKey.Value))
-			respawnKey.Value = KeyCode.None;
-		respawnKey.SettingChanged += RespawnKeyChanged;
-
-		faydownFlips = Config.Bind("", "FlipdownCloak", false);
-		faydownFlips.SettingChanged += FlipdownChanged;
-
+		Settings.BindConfigEntries();
 		Logger.LogInfo($"Plugin {Name} ({Id}) has loaded!");
-		
-		void RespawnKeyChanged(object sender, System.EventArgs e) {
-			if (respawnKeyOption != null && respawnKeyOption.Value != respawnKey.Value)
-				respawnKeyOption.Value = respawnKey.Value;
-		}
-		void FlipdownChanged(object sender, System.EventArgs e) {
-			if (faydownOption != null && faydownOption.Value != faydownFlips.Value)
-				faydownOption.Value = faydownFlips.Value;
-		}
 	}
 
 	private void Start() {
@@ -101,7 +57,7 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 			&& gm.IsGameplayScene() && !gm.IsGamePaused()
 			&& !gm.hero_ctrl.controlReqlinquished
 			&& respawnTimer <= 0
-			&& respawnKey!.Value != KeyCode.None && Input.GetKeyDown(respawnKey!.Value)
+			&& Settings.RespawnKey != KeyCode.None && Input.GetKeyDown(Settings.RespawnKey)
 		) {
 			respawnTimer = RESPAWN_TIME_LIMIT;
 			QueueRespawnHero();
@@ -111,40 +67,6 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 			respawnTimer -= Time.deltaTime;
 		if (flipTimer > 0)
 			flipTimer--;
-	}
-
-	public string ModMenuName() => Name;
-
-	public AbstractMenuScreen BuildCustomMenu() {
-		LocalisedTextButton respawnBtn = new(LangUtil.String("MENU_RESPAWN_BUTTON")) {
-			OnSubmit = QueueRespawnHero
-		};
-
-		respawnKeyOption = new(
-			LangUtil.String("MENU_RESPAWN_KEY_LABEL"),
-			bindableKeys,
-			LangUtil.String("MENU_RESPAWN_KEY_DESC")
-		) {
-			Value = respawnKey!.Value
-		};
-		respawnKeyOption.OnValueChanged += key => respawnKey.Value = key;
-
-		faydownOption = new(
-			LangUtil.String("MENU_FLIPDOWN_LABEL"),
-			new LocalisedListChoiceModel<bool>([
-				(false, LangUtil.String("MENU_BOOL_FALSE")),
-				(true, LangUtil.String("MENU_BOOL_TRUE")),
-			]),
-			LangUtil.String("MENU_FLIPDOWN_DESC")
-		) {
-			Value = faydownFlips!.Value
-		};
-		faydownOption.OnValueChanged += value => faydownFlips.Value = value;
-
-		SimpleMenuScreen screen = new(Name);
-		screen.AddRange([respawnBtn, respawnKeyOption, faydownOption]);
-
-		return screen;
 	}
 
 	internal static void QueueRespawnHero() {
@@ -268,5 +190,8 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 		vel = vel with { y = -vel.y };
 		HeroController.instance.rb2d.linearVelocity = vel;
 	}
+
+	public string ModMenuName() => Settings.ModMenuName();
+	public AbstractMenuScreen BuildCustomMenu() => Settings.BuildCustomMenu();
 
 }

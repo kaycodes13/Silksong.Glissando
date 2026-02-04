@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
-using System.Collections.Generic;
 using System.Linq;
 using TeamCherry.Localization;
+using VVVVVV.Settings;
 using VVVVVV.Utils;
 
 namespace VVVVVV.Patches;
@@ -18,12 +18,12 @@ internal static class FaydownUIPatch {
 
 		if (key == "PROMPT_DJ") {
 			// this key should be left alone when faydown is normal
-			if (V6Plugin.FaydownFlipsGravity)
+			if (V6Plugin.Settings.FaydownState.FlipsGravity())
 				sheetTitle = LangUtil.SHEET;
 		}
 		else if (key == "INV_DESC_DRESS_DJ") {
 			sheetTitle = LangUtil.SHEET;
-			key += V6Plugin.FaydownFlipsGravity ? "_ON" : "_OFF";
+			key = V6Plugin.Settings.FaydownState.InventoryLangKey();
 		}
 		else if (langKeys.Contains(key))
 			sheetTitle = LangUtil.SHEET;

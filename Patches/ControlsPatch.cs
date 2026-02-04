@@ -1,17 +1,21 @@
 ﻿using HarmonyLib;
+using VVVVVV.Settings;
 
 namespace VVVVVV.Patches;
 
 [HarmonyPatch(typeof(HeroController))]
-internal static class GravityFlipControlsPatch {
+internal static class ControlsPatch {
 
 	[HarmonyPatch(nameof(HeroController.CanDoubleJump))]
 	[HarmonyPostfix]
 	private static void AllowFloatOnDownAndJump(HeroController __instance, ref bool __result) {
-		if (!__result || !V6Plugin.FaydownFlipsGravity)
+		if (!__result)
 			return;
 
-		__result = __instance.inputHandler.inputActions.Down.IsPressed == false;
+		__result = V6Plugin.Settings.FaydownState switch {
+			FaydownState.Disabled => false,
+			_ => !__instance.inputHandler.inputActions.Down.IsPressed
+		};
 	}
 
 	[HarmonyPatch(nameof(HeroController.Awake))]
@@ -37,7 +41,7 @@ internal static class GravityFlipControlsPatch {
 	[HarmonyPatch(nameof(HeroController.DoDoubleJump))]
 	[HarmonyPostfix]
 	private static void FlipOnDoubleJump(HeroController __instance) {
-		if (V6Plugin.FaydownFlipsGravity) {
+		if (V6Plugin.Settings.FaydownState.FlipsGravity()) {
 			V6Plugin.FlipGravity(__instance);
 			__instance.CancelHeroJump();
 		}
