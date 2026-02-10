@@ -6,6 +6,13 @@ namespace VVVVVV.Patches;
 [HarmonyPatch(typeof(HeroController))]
 internal static class ControlsPatch {
 
+	[HarmonyPatch(nameof(HeroController.CanSuperJump))]
+	[HarmonyPostfix]
+	private static void DisableSilkSoar(ref bool __result) {
+		if (V6Plugin.GravityIsFlipped)
+			__result = false;
+	}
+
 	[HarmonyPatch(nameof(HeroController.CanDoubleJump))]
 	[HarmonyPostfix]
 	private static void AllowFloatOnDownAndJump(HeroController __instance, ref bool __result) {
