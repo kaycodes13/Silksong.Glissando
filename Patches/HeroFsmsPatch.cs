@@ -18,7 +18,8 @@ internal static class HeroFsmsPatch {
 		didSprintEdit = false,
 		didChargeAttackEdit = false,
 		didScrambleEdit = false,
-		didToolsEdit = false;
+		didToolsEdit = false,
+		didSpellsEdit = false;
 
 
 	[HarmonyPatch(typeof(PlayerData), nameof(PlayerData.SetupNewPlayerData))]
@@ -55,6 +56,8 @@ internal static class HeroFsmsPatch {
 			EditWallScramble(__instance);
 		if (!didToolsEdit)
 			EditTools(__instance);
+		if (!didSpellsEdit)
+			EditSpells(__instance);
 	}
 
 	[HarmonyPatch(typeof(PlayMakerFSM), nameof(PlayMakerFSM.Start))]
@@ -83,6 +86,8 @@ internal static class HeroFsmsPatch {
 			EditWallScramble(hc);
 		else if (!didToolsEdit && ReferenceEquals(__instance, hc.toolsFSM))
 			EditTools(hc);
+		else if (!didSpellsEdit && ReferenceEquals(__instance, hc.silkSpecialFSM))
+			EditSpells(hc);
 	}
 
 	private static void ResetEditedState() {
@@ -462,6 +467,34 @@ internal static class HeroFsmsPatch {
 			});
 		}
 
+	}
+
+	private static void EditSpells(HeroController hc) {
+		didSpellsEdit = true;
+
+		PlayMakerFSM fsm = hc.silkSpecialFSM;
+		if (!fsm.Fsm.preprocessed)
+			fsm.Preprocess();
+
+		string[] stateNames = [
+			"Parry Flip?",
+			"Silk Charge Flip?",
+			"A Sphere Flip?",
+			"N throw Flip?",
+			"B Needle Flip?",
+			"S Bomb Flip?",
+		];
+		fsm.DoGravityFlipEdit(
+			hc,
+			checkStates: [.. stateNames.Select(x => fsm.GetState(x)!)]
+		);
+
+		fsm.GetState("Taunt Antic")!.AddMethod(FlipCancel);
+		fsm.GetState("Taunt Rings")!.AddMethod(FlipCancel);
+		void FlipCancel() {
+			if (V6Plugin.GravityIsFlipped)
+				fsm.SendEventSafe("CANCEL TAUNT");
+		}
 	}
 
 	private static void EditVoltvesselSpear(PlayMakerFSM fsm) {

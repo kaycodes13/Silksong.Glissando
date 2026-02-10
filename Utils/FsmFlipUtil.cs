@@ -28,8 +28,11 @@ internal static class FsmFlipUtil {
 
 		FsmBool isFlipped = fsm.GetBoolVariable(FLIP_BOOL_NAME);
 
-		foreach(var state in checkStates)
+		foreach(var state in checkStates){
+			if (state == null)
+				continue;
 			state.InsertMethod(0, FlipState);
+		}
 
 		void FlipState() {
 			if (isFlipped.Value == V6Plugin.GravityIsFlipped)
