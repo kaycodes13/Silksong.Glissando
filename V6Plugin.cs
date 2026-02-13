@@ -70,8 +70,13 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 	}
 
 	internal static void QueueRespawnHero() {
-		if (GameManager.SilentInstance is not GameManager gm || gm.IsNonGameplayScene() || Instance.respawnCoro != null)
+		if (GameManager.SilentInstance is not GameManager gm
+			|| gm.IsNonGameplayScene()
+			|| gm.GameState != GameState.PLAYING
+			|| Instance.respawnCoro != null
+		) {
 			return;
+		}
 
 		var hc = HeroController.instance;
 
@@ -82,6 +87,8 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 		Instance.respawnCoro = Instance.StartCoroutine(RespawnHero());
 
 		IEnumerator RespawnHero() {
+			TransitionPoint.IsTransitionBlocked = true;
+
 			if (gm.IsGamePaused()) {
 				IEnumerator unpauseIterator = gm.PauseGameToggle(playSound: false);
 				while (unpauseIterator.MoveNext())
@@ -104,6 +111,7 @@ public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
 			while (hc.hero_state == ActorStates.no_input || hc.doingHazardRespawn)
 				yield return null;
 
+			TransitionPoint.IsTransitionBlocked = false;
 			Instance.respawnCoro = null;
 		}
 
