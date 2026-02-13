@@ -30,10 +30,8 @@ internal static class AttacksPatch {
 		if (__instance.Config.DownSlashType != DownSlashTypes.DownSpike)
 			return;
 
-		if (V6Plugin.GravityIsFlipped && __instance.Config.DownspikeThrusts) {
-			UnityEngine.Debug.Log("downspike START");
+		if (V6Plugin.GravityIsFlipped && __instance.Config.DownspikeThrusts)
 			V6Plugin.FlipHeroVelocity();
-		}
 
 		DamageEnemies damager = __instance.currentDownspike.EnemyDamager;
 		int cardinalDir = DirectionUtils.GetCardinalDirection(damager.direction);
@@ -49,20 +47,16 @@ internal static class AttacksPatch {
 	[HarmonyPostfix]
 	[HarmonyPriority(Priority.Last)]
 	private static void FlipDownspikeMiddle(HeroController __instance) {
-		if (V6Plugin.GravityIsFlipped && __instance.Config.DownspikeThrusts) {
-			UnityEngine.Debug.Log("downspike middle");
+		if (V6Plugin.GravityIsFlipped && __instance.Config.DownspikeThrusts)
 			V6Plugin.FlipHeroVelocity();
-		}
 	}
 
 	[HarmonyPatch(nameof(HeroController.FinishDownspike), [typeof(bool)])]
 	[HarmonyPostfix]
 	[HarmonyPriority(Priority.Last)]
 	private static void FlipDownspikeEnd(HeroController __instance) {
-		UnityEngine.Debug.Log("downspike END");
-		if (V6Plugin.GravityIsFlipped && !__instance.cState.floating && !__instance.startWithBalloonBounce) {
+		if (V6Plugin.GravityIsFlipped && !__instance.cState.floating && !__instance.startWithBalloonBounce)
 			V6Plugin.FlipHeroVelocity();
-		}
 	}
 
 }
