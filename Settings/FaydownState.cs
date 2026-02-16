@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Silksong.ModMenu.Models;
+using System;
 using System.Linq;
-using VVVVVV.Menu;
 using VVVVVV.Utils;
 
 namespace VVVVVV.Settings;
@@ -15,17 +15,11 @@ internal static class FaydownStateExt {
 
 	public static bool FlipsGravity(this FaydownState state)
 		=> state == FaydownState.FlipGravity;
-	public static bool DoubleJumps(this FaydownState state)
-		=> state == FaydownState.DoubleJump;
-	public static bool IsDisabled(this FaydownState state)
-		=> state == FaydownState.Disabled;
 
-	public static LocalisedListChoiceModel<FaydownState> LocalisedChoiceModel()
-		=> new([
-			.. Enum.GetValues(typeof(FaydownState))
-				.Cast<FaydownState>()
-				.Select(x => (x, LangUtil.String(x.MenuLangKey()))),
-		]);
+	public static ListChoiceModel<FaydownState> LocalisedChoiceModel() 
+		=> new([.. Enum.GetValues(typeof(FaydownState)).Cast<FaydownState>()]) {
+			DisplayFn = (int _, FaydownState val) => LangUtil.String(val.MenuLangKey())
+		};
 
 	public static string MenuLangKey(this FaydownState state)
 		=> state.LangKey("MENU_FLIPDOWN");

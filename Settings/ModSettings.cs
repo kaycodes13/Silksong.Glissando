@@ -2,9 +2,7 @@
 using Silksong.ModMenu.Elements;
 using Silksong.ModMenu.Plugin;
 using Silksong.ModMenu.Screens;
-using System.Collections.Generic;
 using UnityEngine;
-using VVVVVV.Menu;
 using VVVVVV.Utils;
 
 namespace VVVVVV.Settings;
@@ -18,49 +16,26 @@ internal class ModSettings : IModMenuCustomMenu {
 
 	public FaydownState FaydownState => faydownState?.Value ?? FAYDOWN_STATE_DEFAULT;
 	private ConfigEntry<FaydownState>? faydownState;
-	private LocalisedChoiceElement<FaydownState>? faydownOption;
+	private ChoiceElement<FaydownState>? faydownOption;
 
 	public KeyCode RespawnKey => respawnKey?.Value ?? RESPAWN_KEY_DEFAULT;
 	private ConfigEntry<KeyCode>? respawnKey;
-	private LocalisedChoiceElement<KeyCode>? respawnKeyOption;
-	private static readonly List<KeyCode> bindableKeys = [
-		KeyCode.None,
-		KeyCode.F3,
-		KeyCode.F4,
-		KeyCode.F5,
-		KeyCode.F6,
-		KeyCode.F7,
-		KeyCode.F8,
-		KeyCode.F9,
-		KeyCode.F10,
-		KeyCode.Backspace,
-		KeyCode.Tab,
-		KeyCode.Backslash,
-		KeyCode.Slash,
-		KeyCode.LeftAlt,
-		KeyCode.RightAlt,
-	];
+	private KeyBindElement? respawnKeyOption;
 
 	public void BindConfigEntries() {
 		respawnKey = Config.Bind("", "RespawnKeybind", RESPAWN_KEY_DEFAULT);
-		if (!bindableKeys.Contains(respawnKey.Value))
-			respawnKey.Value = KeyCode.None;
-
 		faydownState = Config.Bind("", "FayfornsGift", FAYDOWN_STATE_DEFAULT);
 	}
 
 	public string ModMenuName() => V6Plugin.Name;
 
 	public AbstractMenuScreen BuildCustomMenu() {
-		LocalisedTextButton respawnBtn = new(LangUtil.String("MENU_RESPAWN_BUTTON")) {
-			OnSubmit = V6Plugin.QueueRespawnHero
-		};
+		// This does nothing when you press the button, now. It used to work on ModMenu 0.2.0...
+		//TextButton respawnBtn = new(LangUtil.String("MENU_RESPAWN_BUTTON")) {
+		//	OnSubmit = V6Plugin.QueueRespawnHero
+		//};
 
-		respawnKeyOption = new(
-			LangUtil.String("MENU_RESPAWN_KEY_LABEL"),
-			bindableKeys,
-			LangUtil.String("MENU_RESPAWN_KEY_DESC")
-		);
+		respawnKeyOption = new(LangUtil.String("MENU_RESPAWN_KEY_LABEL"));
 		SyncEntryAndElement(respawnKey!, respawnKeyOption);
 
 		faydownOption = new(
@@ -71,7 +46,15 @@ internal class ModSettings : IModMenuCustomMenu {
 		SyncEntryAndElement(faydownState!, faydownOption);
 
 		SimpleMenuScreen screen = new(ModMenuName());
-		screen.AddRange([respawnBtn, respawnKeyOption, faydownOption]);
+		MenuElement[] elements = [
+			//respawnBtn,
+			respawnKeyOption,
+			faydownOption,
+		];
+		screen.AddRange(elements);
+		// genuinely do not have a clue why this is needed, but it is
+		foreach(var elt in elements)
+			elt.Container.transform.SetParent(screen.Container.transform, false);
 
 		return screen;
 	}
