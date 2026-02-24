@@ -12,7 +12,7 @@ namespace Glissando;
 
 [BepInAutoPlugin(id: "io.github.kaycodes13.glissando")]
 [BepInDependency("org.silksong-modding.fsmutil", "0.3.13")]
-[BepInDependency("org.silksong-modding.modmenu", "0.4.1")]
+[BepInDependency("org.silksong-modding.modmenu", "0.4.3")]
 [BepInDependency("org.silksong-modding.i18n", "0.1.0")]
 public partial class GlissandoPlugin : BaseUnityPlugin, IModMenuCustomMenu {
 
@@ -72,7 +72,7 @@ public partial class GlissandoPlugin : BaseUnityPlugin, IModMenuCustomMenu {
 	internal static void QueueRespawnHero() {
 		if (GameManager.SilentInstance is not GameManager gm
 			|| gm.IsNonGameplayScene()
-			|| gm.GameState != GameState.PLAYING
+			|| (gm.GameState != GameState.PLAYING && gm.GameState != GameState.PAUSED)
 			|| Instance.respawnCoro != null
 		) {
 			return;

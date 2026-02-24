@@ -30,10 +30,9 @@ internal class ModSettings : IModMenuCustomMenu {
 	public string ModMenuName() => GlissandoPlugin.Name;
 
 	public AbstractMenuScreen BuildCustomMenu() {
-		// This does nothing when you press the button, now. It used to work on ModMenu 0.2.0...
-		//TextButton respawnBtn = new(LangUtil.String("MENU_RESPAWN_BUTTON")) {
-		//	OnSubmit = V6Plugin.QueueRespawnHero
-		//};
+		TextButton respawnBtn = new(LangUtil.String("MENU_RESPAWN_BUTTON")) {
+			OnSubmit = GlissandoPlugin.QueueRespawnHero
+		};
 
 		respawnKeyOption = new(LangUtil.String("MENU_RESPAWN_KEY_LABEL"));
 		SyncEntryAndElement(respawnKey!, respawnKeyOption);
@@ -47,7 +46,7 @@ internal class ModSettings : IModMenuCustomMenu {
 
 		SimpleMenuScreen screen = new(ModMenuName());
 		MenuElement[] elements = [
-			//respawnBtn,
+			respawnBtn,
 			respawnKeyOption,
 			faydownOption,
 		];
