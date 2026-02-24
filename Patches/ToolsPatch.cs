@@ -1,9 +1,9 @@
 ﻿using HarmonyLib;
 using System.Collections.Generic;
 using UnityEngine;
-using static VVVVVV.Utils.ILUtil;
+using static Glissando.Utils.ILUtil;
 
-namespace VVVVVV.Patches;
+namespace Glissando.Patches;
 
 [HarmonyPatch(typeof(HeroController), nameof(HeroController.ThrowTool))]
 internal static class ToolsPatch {
@@ -34,13 +34,13 @@ internal static class ToolsPatch {
 			.InstructionEnumeration();
 
 		static Vector2 InvertVectorIfFlipped(Vector2 vec) {
-			if (V6Plugin.GravityIsFlipped)
+			if (GlissandoPlugin.GravityIsFlipped)
 				return new(vec.x, -vec.y);
 			return vec;
 		}
 		static GameObject InvertToolScaleIfFlipped(GameObject go) {
 			if (!go.TryGetComponent<ClockworkHatchling>(out var _))
-				go.transform.FlipLocalScale(y: V6Plugin.GravityIsFlipped);
+				go.transform.FlipLocalScale(y: GlissandoPlugin.GravityIsFlipped);
 			return go;
 		}
 	}

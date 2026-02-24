@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace VVVVVV.Patches;
+namespace Glissando.Patches;
 
 [HarmonyPatch]
 internal static class VisualEffectsPatch {
@@ -38,7 +38,7 @@ internal static class VisualEffectsPatch {
 	[HarmonyPatch(typeof(JumpEffects), nameof(JumpEffects.CheckForFall))]
 	[HarmonyPostfix]
 	private static void FlipJumpEffectsFallCheck(JumpEffects __instance) {
-		if (!V6Plugin.GravityIsFlipped || !__instance.ownerObject.TryGetComponent<HeroController>(out var _))
+		if (!GlissandoPlugin.GravityIsFlipped || !__instance.ownerObject.TryGetComponent<HeroController>(out var _))
 			return;
 
 		if ((__instance.ownerPos.y - __instance.previousOwnerPos.y) / Time.deltaTime > 0f) {
@@ -51,14 +51,14 @@ internal static class VisualEffectsPatch {
 	[HarmonyPatch(typeof(HardLandEffect), nameof(HardLandEffect.OnEnable))]
 	[HarmonyPrefix]
 	private static void FlipHardLandEffect(HardLandEffect __instance) {
-		float expectedY = V6Plugin.GravityIsFlipped ? -1 : 1;
+		float expectedY = GlissandoPlugin.GravityIsFlipped ? -1 : 1;
 		__instance.transform.localScale = __instance.transform.localScale with { y = expectedY };
 	}
 
 	[HarmonyPatch(typeof(SoftLandEffect), nameof(SoftLandEffect.OnEnable))]
 	[HarmonyPrefix]
 	private static void FlipSoftLandEffect(SoftLandEffect __instance) {
-		float expectedY = V6Plugin.GravityIsFlipped ? -1 : 1;
+		float expectedY = GlissandoPlugin.GravityIsFlipped ? -1 : 1;
 		__instance.transform.localScale = __instance.transform.localScale with { y = expectedY };
 	}
 
@@ -66,7 +66,7 @@ internal static class VisualEffectsPatch {
 	[HarmonyPatch(typeof(HeroAnimationController), nameof(HeroAnimationController.GetClip))]
 	[HarmonyPrefix]
 	private static void FlipLookAnimations(ref string clipName) {
-		if (!V6Plugin.GravityIsFlipped)
+		if (!GlissandoPlugin.GravityIsFlipped)
 			return;
 
 		if (downToUp.TryGetValue(clipName, out string downToUpClip))

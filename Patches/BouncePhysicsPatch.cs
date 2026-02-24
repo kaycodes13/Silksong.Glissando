@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
-using static VVVVVV.Utils.ILUtil;
+using static Glissando.Utils.ILUtil;
 
-namespace VVVVVV.Patches;
+namespace Glissando.Patches;
 
 [HarmonyPatch]
 internal static class BouncePhysicsPatch {
@@ -13,7 +13,7 @@ internal static class BouncePhysicsPatch {
 	[HarmonyPatch(typeof(BounceShared), nameof(BounceShared.BouncePull))]
 	[HarmonyPrefix]
 	private static void InvertBouncePullPos(Transform transform, ref Vector2 heroBouncePos) {
-		if (!V6Plugin.GravityIsFlipped)
+		if (!GlissandoPlugin.GravityIsFlipped)
 			return;
 
 		float yOffset = Mathf.Abs(heroBouncePos.y - transform.position.y);
@@ -82,8 +82,8 @@ internal static class BouncePhysicsPatch {
 	[HarmonyPatch(typeof(BounceBalloon), nameof(BounceBalloon.RaiseMovement))]
 	[HarmonyPostfix]
 	private static void InvertBounceBalloon2() {
-		if (V6Plugin.GravityIsFlipped)
-			V6Plugin.FlipHeroVelocity();
+		if (GlissandoPlugin.GravityIsFlipped)
+			GlissandoPlugin.FlipHeroVelocity();
 	}
 
 
@@ -129,7 +129,7 @@ internal static class BouncePhysicsPatch {
 	[HarmonyPostfix]
 	private static void InvertNSRecoil(ref float __result) {
 		int cardinal = DirectionUtils.GetCardinalDirection(__result);
-		if (V6Plugin.GravityIsFlipped && (cardinal == DirectionUtils.Up || cardinal == DirectionUtils.Down))
+		if (GlissandoPlugin.GravityIsFlipped && (cardinal == DirectionUtils.Up || cardinal == DirectionUtils.Down))
 			__result += 180;
 	}
 
@@ -137,7 +137,7 @@ internal static class BouncePhysicsPatch {
 	// flipped in the first place to damage enemies properly, but that breaks bouncing
 	private static void UnflipHitDirection(ref HitInstance damageInstance) {
 		const float UP_ANGLE = 90, DOWN_ANGLE = 270;
-		if (!V6Plugin.GravityIsFlipped || !damageInstance.IsNailDamage)
+		if (!GlissandoPlugin.GravityIsFlipped || !damageInstance.IsNailDamage)
 			return;
 
 		if (damageInstance.Direction == UP_ANGLE)

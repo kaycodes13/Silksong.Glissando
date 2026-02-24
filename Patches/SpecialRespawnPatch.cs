@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 
-namespace VVVVVV.Patches;
+namespace Glissando.Patches;
 
 [HarmonyPatch(typeof(HeroController))]
 internal static class SpecialRespawnPatch {
@@ -27,10 +27,10 @@ internal static class SpecialRespawnPatch {
 	[HarmonyPostfix]
 	private static void OutOfBoundsAutomaticRespawn(HeroController __instance) {
 		if (
-			__instance.gm.IsGameplayScene() && V6Plugin.GravityIsFlipped
+			__instance.gm.IsGameplayScene() && GlissandoPlugin.GravityIsFlipped
 			&& __instance.transform.position.y > __instance.gm.sceneHeight + 20
 		) {
-			V6Plugin.QueueRespawnHero();
+			GlissandoPlugin.QueueRespawnHero();
 		}
 	}
 

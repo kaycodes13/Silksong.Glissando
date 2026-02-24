@@ -7,10 +7,10 @@ using TeamCherry.SharedUtils;
 using UnityEngine;
 using Sv2dComparison = HutongGames.PlayMaker.Actions.SetVelocity2dConditional.ComparisonType;
 
-namespace VVVVVV.Utils;
+namespace Glissando.Utils;
 internal static class FsmFlipUtil {
 
-	internal const string FLIP_BOOL_NAME = $"{V6Plugin.Id} Is Flipped";
+	internal const string FLIP_BOOL_NAME = $"{GlissandoPlugin.Id} Is Flipped";
 
 	/// <summary>
 	/// Performs an FSM edit which causes all <paramref name="checkStates"/> to check the gravity status, and if gravity is flipped, flip all hero-targeting y motion in all the actions in the <paramref name="affectedStates"/>.
@@ -35,10 +35,10 @@ internal static class FsmFlipUtil {
 		}
 
 		void FlipState() {
-			if (isFlipped.Value == V6Plugin.GravityIsFlipped)
+			if (isFlipped.Value == GlissandoPlugin.GravityIsFlipped)
 				return;
 
-			isFlipped.Value = V6Plugin.GravityIsFlipped;
+			isFlipped.Value = GlissandoPlugin.GravityIsFlipped;
 			affectedActions.FlipHeroMotion(hc);
 			otherEdits?.Invoke();
 		}

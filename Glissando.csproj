@@ -22,7 +22,7 @@
 
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
-    <RepositoryUrl>https://github.com/kaycodes13/Silksong.VVVVVV</RepositoryUrl>
+    <RepositoryUrl>https://github.com/kaycodes13/Silksong.Glissando</RepositoryUrl>
     <NeutralLanguage>EN</NeutralLanguage>
   </PropertyGroup>
   <ItemGroup>

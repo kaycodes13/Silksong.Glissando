@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using UnityEngine;
-using static VVVVVV.Utils.ILUtil;
+using static Glissando.Utils.ILUtil;
 
-namespace VVVVVV.Patches.FsmActions;
+namespace Glissando.Patches.FsmActions;
 
 [HarmonyPatch(typeof(CheckIsCharacterGrounded), nameof(CheckIsCharacterGrounded.DoAction))]
 internal static class CheckGroundedActionPatch {
@@ -24,7 +24,7 @@ internal static class CheckGroundedActionPatch {
 			.InstructionEnumeration();
 
 		static float InvertIfHeroAndFlipped(float value, CheckIsCharacterGrounded self) {
-			if (self.isHero && V6Plugin.GravityIsFlipped)
+			if (self.isHero && GlissandoPlugin.GravityIsFlipped)
 				return -value;
 			return value;
 		}

@@ -6,9 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using VVVVVV.Utils;
+using Glissando.Utils;
 
-namespace VVVVVV.Patches;
+namespace Glissando.Patches;
 
 [HarmonyPatch]
 internal static class HeroFsmsPatch {
@@ -173,8 +173,8 @@ internal static class HeroFsmsPatch {
 					continue;
 				int direction = DirectionUtils.GetCardinalDirection(damager.direction);
 				if (
-					(V6Plugin.GravityIsFlipped && direction == DirectionUtils.Down)
-					|| (!V6Plugin.GravityIsFlipped && direction == DirectionUtils.Up)
+					(GlissandoPlugin.GravityIsFlipped && direction == DirectionUtils.Down)
+					|| (!GlissandoPlugin.GravityIsFlipped && direction == DirectionUtils.Up)
 				) {
 					damager.FlipDirection();
 				}
@@ -193,7 +193,7 @@ internal static class HeroFsmsPatch {
 		string pirouetteAnimName = "Shuttlecock";
 		FsmBool
 			isFlipped = fsm.GetBoolVariable(FsmFlipUtil.FLIP_BOOL_NAME),
-			shouldPirouette = fsm.GetBoolVariable($"{V6Plugin.Id} Should Pirouette");
+			shouldPirouette = fsm.GetBoolVariable($"{GlissandoPlugin.Id} Should Pirouette");
 		FsmString
 			sprintAirAnim = fsm.FindStringVariable("Sprint Air Anim")!;
 
@@ -393,7 +393,7 @@ internal static class HeroFsmsPatch {
 				fsm.GetState("TriPin Air L")!,
 				fsm.GetState("TriPin Air R")!,
 			];
-			FsmFloat rotationAngle = fsm.GetFloatVariable($"{V6Plugin.Id} Projectile Rotation Angle");
+			FsmFloat rotationAngle = fsm.GetFloatVariable($"{GlissandoPlugin.Id} Projectile Rotation Angle");
 			foreach (FsmState state in states) {
 				foreach (var nextSpawnObj in state.GetActionsOfType<SpawnObjectFromGlobalPool>().Skip(1)) {
 					int index = Array.IndexOf(state.Actions, nextSpawnObj);
@@ -408,9 +408,9 @@ internal static class HeroFsmsPatch {
 				Transform t = go.transform;
 				Rigidbody2D rb2d = go.GetComponent<Rigidbody2D>();
 
-				t.localScale = t.localScale with { y = V6Plugin.GravityIsFlipped ? -1 : 1 };
+				t.localScale = t.localScale with { y = GlissandoPlugin.GravityIsFlipped ? -1 : 1 };
 
-				if (!V6Plugin.GravityIsFlipped)
+				if (!GlissandoPlugin.GravityIsFlipped)
 					return;
 
 				Vector2 spawnPt = fsm.FindGameObjectVariable("Self")!.Value.transform.position;
@@ -492,16 +492,16 @@ internal static class HeroFsmsPatch {
 		fsm.GetState("Taunt Antic")!.AddMethod(FlipCancel);
 		fsm.GetState("Taunt Rings")!.AddMethod(FlipCancel);
 		void FlipCancel() {
-			if (V6Plugin.GravityIsFlipped)
+			if (GlissandoPlugin.GravityIsFlipped)
 				fsm.SendEventSafe("CANCEL TAUNT");
 		}
 	}
 
 	private static void EditVoltvesselSpear(PlayMakerFSM fsm) {
 		// check if we edited this one yet or not, because these are pooled
-		if (fsm.FindBoolVariable(V6Plugin.Id) != null)
+		if (fsm.FindBoolVariable(GlissandoPlugin.Id) != null)
 			return;
-		fsm.AddBoolVariable(V6Plugin.Id);
+		fsm.AddBoolVariable(GlissandoPlugin.Id);
 
 		// make floor detection work on ceilings too
 		FsmState angleDetectState = fsm.GetState("Land Angle")!;
@@ -533,7 +533,7 @@ internal static class HeroFsmsPatch {
 		fsm.GetState("Floor")!.AddMethod(FlipSpearAngles);
 
 		void FlipSpearAngles() {
-			if (V6Plugin.GravityIsFlipped) {
+			if (GlissandoPlugin.GravityIsFlipped) {
 				upAngle.Value
 					= downAngle.Value
 					= landAngle.Value
@@ -547,9 +547,9 @@ internal static class HeroFsmsPatch {
 
 	private static void EditConchCutter(PlayMakerFSM fsm) {
 		// check if we edited this one yet or not, because these are pooled
-		if (fsm.FindBoolVariable(V6Plugin.Id) != null)
+		if (fsm.FindBoolVariable(GlissandoPlugin.Id) != null)
 			return;
-		fsm.AddBoolVariable(V6Plugin.Id);
+		fsm.AddBoolVariable(GlissandoPlugin.Id);
 
 		// allow it to start in an upward motion if gravity is flipped
 		FsmFloat scaleX = fsm.FindFloatVariable("Scale X")!;
@@ -562,7 +562,7 @@ internal static class HeroFsmsPatch {
 
 		void PickDirection() {
 			string
-				vertical = V6Plugin.GravityIsFlipped ? "U" : "D",
+				vertical = GlissandoPlugin.GravityIsFlipped ? "U" : "D",
 				horizontal = scaleX.Value < 0 ? "L" : "R",
 				eventName = $"{vertical}{horizontal}";
 

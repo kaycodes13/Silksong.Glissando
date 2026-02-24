@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using UnityEngine;
-using static VVVVVV.Utils.ILUtil;
+using static Glissando.Utils.ILUtil;
 using CollisionSide = GlobalEnums.CollisionSide;
 
-namespace VVVVVV.Patches;
+namespace Glissando.Patches;
 
 [HarmonyPatch(typeof(HeroController))]
 internal static class HeroPhysicsPatch {
@@ -14,7 +14,7 @@ internal static class HeroPhysicsPatch {
 	[HarmonyPatch(nameof(HeroController.FindCollisionDirection))]
 	[HarmonyPostfix]
 	private static void FlippedCollisionDirection(ref CollisionSide __result) {
-		if (V6Plugin.GravityIsFlipped) {
+		if (GlissandoPlugin.GravityIsFlipped) {
 			if (__result == CollisionSide.top)
 				__result = CollisionSide.bottom;
 			else if (__result == CollisionSide.bottom)
@@ -26,7 +26,7 @@ internal static class HeroPhysicsPatch {
 	[HarmonyPatch(nameof(HeroController.CheckTouchingGround), [typeof(bool)])]
 	[HarmonyPostfix]
 	private static void FlippedGroundCheck(HeroController __instance, ref bool __result) {
-		if (!V6Plugin.GravityIsFlipped)
+		if (!GlissandoPlugin.GravityIsFlipped)
 			return;
 
 		Bounds bounds = __instance.col2d.bounds;
@@ -53,7 +53,7 @@ internal static class HeroPhysicsPatch {
 	[HarmonyPatch(nameof(HeroController.CheckNearRoof))]
 	[HarmonyPostfix]
 	private static void FlippedRoofCheck(HeroController __instance, ref bool __result) {
-		if (!V6Plugin.GravityIsFlipped)
+		if (!GlissandoPlugin.GravityIsFlipped)
 			return;
 
 		Bounds bounds = __instance.col2d.bounds;

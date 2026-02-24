@@ -1,9 +1,9 @@
 ﻿using Silksong.ModMenu.Models;
 using System;
 using System.Linq;
-using VVVVVV.Utils;
+using Glissando.Utils;
 
-namespace VVVVVV.Settings;
+namespace Glissando.Settings;
 
 internal enum FaydownState {
 	FlipGravity,

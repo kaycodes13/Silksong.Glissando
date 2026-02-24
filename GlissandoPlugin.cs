@@ -6,19 +6,19 @@ using Silksong.ModMenu.Plugin;
 using Silksong.ModMenu.Screens;
 using System.Collections;
 using UnityEngine;
-using VVVVVV.Settings;
+using Glissando.Settings;
 
-namespace VVVVVV;
+namespace Glissando;
 
-[BepInAutoPlugin(id: "io.github.kaycodes13.vvvvvv")]
+[BepInAutoPlugin(id: "io.github.kaycodes13.glissando")]
 [BepInDependency("org.silksong-modding.fsmutil", "0.3.13")]
 [BepInDependency("org.silksong-modding.modmenu", "0.4.1")]
 [BepInDependency("org.silksong-modding.i18n", "0.1.0")]
-public partial class V6Plugin : BaseUnityPlugin, IModMenuCustomMenu {
+public partial class GlissandoPlugin : BaseUnityPlugin, IModMenuCustomMenu {
 
 	public static bool GravityIsFlipped { get; internal set; } = false;
 
-	internal static V6Plugin Instance { get; private set; } = null!;
+	internal static GlissandoPlugin Instance { get; private set; } = null!;
 	internal static ManualLogSource Log { get; private set; } = null!;
 	internal static ModSettings Settings { get; } = new();
 

@@ -1,10 +1,10 @@
 ﻿using HarmonyLib;
 using System.Linq;
 using TeamCherry.Localization;
-using VVVVVV.Settings;
-using VVVVVV.Utils;
+using Glissando.Settings;
+using Glissando.Utils;
 
-namespace VVVVVV.Patches;
+namespace Glissando.Patches;
 
 [HarmonyPatch]
 internal static class FaydownUIPatch {
@@ -18,12 +18,12 @@ internal static class FaydownUIPatch {
 
 		if (key == "PROMPT_DJ") {
 			// this key should be left alone when faydown is normal
-			if (V6Plugin.Settings.FaydownState.FlipsGravity())
+			if (GlissandoPlugin.Settings.FaydownState.FlipsGravity())
 				sheetTitle = LangUtil.SHEET;
 		}
 		else if (key == "INV_DESC_DRESS_DJ") {
 			sheetTitle = LangUtil.SHEET;
-			key = V6Plugin.Settings.FaydownState.InventoryLangKey();
+			key = GlissandoPlugin.Settings.FaydownState.InventoryLangKey();
 		}
 		else if (langKeys.Contains(key))
 			sheetTitle = LangUtil.SHEET;

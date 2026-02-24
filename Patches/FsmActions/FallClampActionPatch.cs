@@ -3,9 +3,9 @@ using HutongGames.PlayMaker.Actions;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using UnityEngine;
-using static VVVVVV.Utils.ILUtil;
+using static Glissando.Utils.ILUtil;
 
-namespace VVVVVV.Patches.FsmActions;
+namespace Glissando.Patches.FsmActions;
 
 [HarmonyPatch]
 internal static class FallClampActionPatch {

@@ -3,13 +3,13 @@ using Silksong.ModMenu.Elements;
 using Silksong.ModMenu.Plugin;
 using Silksong.ModMenu.Screens;
 using UnityEngine;
-using VVVVVV.Utils;
+using Glissando.Utils;
 
-namespace VVVVVV.Settings;
+namespace Glissando.Settings;
 
 internal class ModSettings : IModMenuCustomMenu {
 
-	private static ConfigFile Config => V6Plugin.Instance.Config;
+	private static ConfigFile Config => GlissandoPlugin.Instance.Config;
 
 	private const FaydownState FAYDOWN_STATE_DEFAULT = FaydownState.DoubleJump;
 	private const KeyCode RESPAWN_KEY_DEFAULT = KeyCode.None;
@@ -27,7 +27,7 @@ internal class ModSettings : IModMenuCustomMenu {
 		faydownState = Config.Bind("", "FayfornsGift", FAYDOWN_STATE_DEFAULT);
 	}
 
-	public string ModMenuName() => V6Plugin.Name;
+	public string ModMenuName() => GlissandoPlugin.Name;
 
 	public AbstractMenuScreen BuildCustomMenu() {
 		// This does nothing when you press the button, now. It used to work on ModMenu 0.2.0...

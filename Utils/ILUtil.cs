@@ -3,7 +3,7 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace VVVVVV.Utils;
+namespace Glissando.Utils;
 
 /// <summary>
 /// Instruction matching predicates and other small utilities to help make IL patches
@@ -19,7 +19,7 @@ internal static class ILUtil {
 		return Transpilers.EmitDelegate(InvertFloat);
 
 		static float InvertFloat(float value) {
-			if (V6Plugin.GravityIsFlipped)
+			if (GlissandoPlugin.GravityIsFlipped)
 				return -value;
 			else
 				return value;

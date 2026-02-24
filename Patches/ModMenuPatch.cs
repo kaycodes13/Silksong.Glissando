@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
 
-namespace VVVVVV.Patches;
+namespace Glissando.Patches;
 
 /*
 If you are reading this, DO NOT copy this because it's wicked fragile and incredibly cursed.

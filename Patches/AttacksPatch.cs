@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using DownSlashTypes = HeroControllerConfig.DownSlashTypes;
 
-namespace VVVVVV.Patches;
+namespace Glissando.Patches;
 
 [HarmonyPatch(typeof(HeroController))]
 internal static class AttacksPatch {
@@ -11,7 +11,7 @@ internal static class AttacksPatch {
 	[HarmonyPatch(typeof(DamageEnemies), nameof(DamageEnemies.SetDirection))]
 	[HarmonyPostfix]
 	private static void FlipNonFsmAttackDirections(DamageEnemies __instance, ref float newDirection) {
-		if (!V6Plugin.GravityIsFlipped || !DamageEnemies.IsNailAttackObject(__instance.gameObject))
+		if (!GlissandoPlugin.GravityIsFlipped || !DamageEnemies.IsNailAttackObject(__instance.gameObject))
 			return;
 
 		int direction = DirectionUtils.GetCardinalDirection(newDirection);
@@ -30,14 +30,14 @@ internal static class AttacksPatch {
 		if (__instance.Config.DownSlashType != DownSlashTypes.DownSpike)
 			return;
 
-		if (V6Plugin.GravityIsFlipped && __instance.Config.DownspikeThrusts)
-			V6Plugin.FlipHeroVelocity();
+		if (GlissandoPlugin.GravityIsFlipped && __instance.Config.DownspikeThrusts)
+			GlissandoPlugin.FlipHeroVelocity();
 
 		DamageEnemies damager = __instance.currentDownspike.EnemyDamager;
 		int cardinalDir = DirectionUtils.GetCardinalDirection(damager.direction);
 		if (
-			(V6Plugin.GravityIsFlipped && cardinalDir == DirectionUtils.Down)
-			|| (!V6Plugin.GravityIsFlipped && cardinalDir == DirectionUtils.Up)
+			(GlissandoPlugin.GravityIsFlipped && cardinalDir == DirectionUtils.Down)
+			|| (!GlissandoPlugin.GravityIsFlipped && cardinalDir == DirectionUtils.Up)
 		) {
 			damager.FlipDirection();
 		}
@@ -47,16 +47,16 @@ internal static class AttacksPatch {
 	[HarmonyPostfix]
 	[HarmonyPriority(Priority.Last)]
 	private static void FlipDownspikeMiddle(HeroController __instance) {
-		if (V6Plugin.GravityIsFlipped && __instance.Config.DownspikeThrusts)
-			V6Plugin.FlipHeroVelocity();
+		if (GlissandoPlugin.GravityIsFlipped && __instance.Config.DownspikeThrusts)
+			GlissandoPlugin.FlipHeroVelocity();
 	}
 
 	[HarmonyPatch(nameof(HeroController.FinishDownspike), [typeof(bool)])]
 	[HarmonyPostfix]
 	[HarmonyPriority(Priority.Last)]
 	private static void FlipDownspikeEnd(HeroController __instance) {
-		if (V6Plugin.GravityIsFlipped && !__instance.cState.floating && !__instance.startWithBalloonBounce)
-			V6Plugin.FlipHeroVelocity();
+		if (GlissandoPlugin.GravityIsFlipped && !__instance.cState.floating && !__instance.startWithBalloonBounce)
+			GlissandoPlugin.FlipHeroVelocity();
 	}
 
 }

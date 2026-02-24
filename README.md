@@ -1,4 +1,4 @@
-# VVVVVV
+# Glissando
 
 A Hollow Knight: Silksong mod that replaces jumping with flipping gravity.
 
@@ -8,11 +8,14 @@ Donation Link: https://ko-fi.com/kaykao
 
 ## Installation
 
-Install via r2modman or Thunderstore Mod Manager. VVVVVV's dependencies should be installed automatically.
+Install via r2modman or Thunderstore Mod Manager. Glissando's dependencies should be installed automatically.
 
 For manual installation, extract the `.zip` file and place the resulting **folder** in the `BepInEx/plugins` directory for your Silksong install. You'll also have to manually install:
 * [FsmUtil](<https://thunderstore.io/c/hollow-knight-silksong/p/silksong_modding/FsmUtil/>)
+* [I18N](<https://thunderstore.io/c/hollow-knight-silksong/p/silksong_modding/I18N/>)
 * [ModMenu](<https://thunderstore.io/c/hollow-knight-silksong/p/silksong_modding/ModMenu/>) and its dependencies
+
+---
 
 ## For Mod Developers
 
