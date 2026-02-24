@@ -1,8 +1,17 @@
 # Glissando
+*or: "Even a Wyrm will turn"*
 
-A Hollow Knight: Silksong mod that replaces jumping with flipping gravity.
+A Hollow Knight: Silksong mod that completely replaces jumping with flipping gravity.
 
-Double jumping also flips gravity. To make traversal a little more reasonable, once you've unlocked both float and double jump, pressing down and jump in the air will always cause you to float.
+Inspired by the game "VVVVVV" by Terry Cavanagh. Sponsored and playtested by TherminatorX.
+
+Double jumping is also changed in this mod. And to make traversal a little more reasonable, once float and double jump are both unlocked, you can always press down and jump in the air to float.
+
+Included in the mod's options is the ability to force a hazard respawn, with either menu button or keybind, in case Hornet ever gets stuck somewhere or goes out of bounds.
+
+Acts 1 and 2 have been playtested, but you may still encounter some problems. If you find a glitch, please [open an issue on the Github repository](https://github.com/kaycodes13/Silksong.Glissando/issues).
+
+**Therm's challenge:** how much of this mod can be beaten with the Mount Fay upgrade disabled?
 
 Donation Link: https://ko-fi.com/kaykao
 
@@ -19,6 +28,6 @@ For manual installation, extract the `.zip` file and place the resulting **folde
 
 ## For Mod Developers
 
-If you're making a mod that changes Hornet's velocity at any point - for example, a custom crest with custom FSM edits for its charged/dash/down attacks - the y velocities you set *won't* automatically flip when VVVVVV flips gravity.
+If you're developing a mod that changes Hornet's velocity at any point, the y velocities you set *may not* automatically flip when Glissando flips gravity. This is especially important for custom crests and tools, as any new FSM actions you add **will not** be affected by this mod.
 
-If you want your mod to be fully compatible with VVVVVV, you can check the value of the static boolean property `V6Plugin.GravityIsFlipped` and invert y velocities/movement when it's true.
+If you want your mod to be fully compatible with Glissando, you can check the value of the static boolean property `GlissandoPlugin.GravityIsFlipped` and invert any relevant y velocities or movement when it's true.
