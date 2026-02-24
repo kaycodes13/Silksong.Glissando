@@ -72,7 +72,7 @@ public partial class GlissandoPlugin : BaseUnityPlugin, IModMenuCustomMenu {
 	internal static void QueueRespawnHero() {
 		if (GameManager.SilentInstance is not GameManager gm
 			|| gm.IsNonGameplayScene()
-			|| gm.GameState != GameState.PLAYING
+			|| (gm.GameState != GameState.PLAYING && gm.GameState != GameState.PAUSED)
 			|| Instance.respawnCoro != null
 		) {
 			return;
