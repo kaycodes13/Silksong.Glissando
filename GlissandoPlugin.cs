@@ -11,9 +11,9 @@ using Glissando.Settings;
 namespace Glissando;
 
 [BepInAutoPlugin(id: "io.github.kaycodes13.glissando")]
-[BepInDependency("org.silksong-modding.fsmutil", "0.3.13")]
-[BepInDependency("org.silksong-modding.modmenu", "0.4.3")]
-[BepInDependency("org.silksong-modding.i18n", "1.0.2")]
+[BepInDependency("org.silksong-modding.fsmutil", "0.3.17")]
+[BepInDependency("org.silksong-modding.modmenu", "0.7.6")]
+[BepInDependency("org.silksong-modding.i18n", "1.1.1")]
 public partial class GlissandoPlugin : BaseUnityPlugin, IModMenuCustomMenu {
 
 	public static bool GravityIsFlipped { get; internal set; } = false;
